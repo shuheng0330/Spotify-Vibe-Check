@@ -44,6 +44,9 @@ def load_all() -> dict:
     tsne_path = f"{MODEL_DIR}/tsne_2d.npy"
     tsne_2d = np.load(tsne_path) if os.path.exists(tsne_path) else None
 
+    tsne_indices_path = f"{MODEL_DIR}/tsne_indices.npy"
+    tsne_indices = np.load(tsne_indices_path) if os.path.exists(tsne_indices_path) else None
+
     pca_report_path = f"{MODEL_DIR}/pca_report.json"
     pca_report = json.load(open(pca_report_path)) if os.path.exists(pca_report_path) else {}
 
@@ -59,6 +62,7 @@ def load_all() -> dict:
         "metadata": metadata,
         "tracks_df": tracks_df,
         "tsne_2d": tsne_2d,
+        "tsne_indices": tsne_indices,
         "pca_report": pca_report,
         "k_eval": k_eval,
     }

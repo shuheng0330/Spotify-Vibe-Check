@@ -27,40 +27,40 @@ def _get_models():
 # Mood word → feature midpoint lookup table
 # ---------------------------------------------------------------------------
 MOOD_KEYWORDS = {
-    # (energy, valence, danceability, acousticness, instrumentalness, speechiness, liveness, tempo, loudness, mode)
-    "happy":       (0.75, 0.80, 0.75, 0.2, 0.05, 0.1, 0.15, 125, -6, 1),
-    "sad":         (0.25, 0.20, 0.30, 0.7, 0.2,  0.1, 0.1,  80,  -12, 0),
-    "energetic":   (0.90, 0.70, 0.80, 0.1, 0.05, 0.1, 0.2,  140, -4, 1),
-    "chill":       (0.30, 0.55, 0.45, 0.6, 0.3,  0.05, 0.1, 90,  -10, 1),
-    "relaxed":     (0.25, 0.55, 0.35, 0.7, 0.35, 0.05, 0.1, 85,  -11, 1),
-    "focus":       (0.45, 0.50, 0.40, 0.4, 0.65, 0.05, 0.1, 110, -8, 1),
-    "study":       (0.35, 0.50, 0.35, 0.5, 0.70, 0.05, 0.1, 100, -9, 1),
-    "workout":     (0.90, 0.65, 0.80, 0.05, 0.05, 0.1, 0.2, 145, -3, 1),
-    "party":       (0.85, 0.80, 0.90, 0.05, 0.03, 0.1, 0.2, 130, -4, 1),
-    "romantic":    (0.45, 0.65, 0.55, 0.5,  0.2,  0.05, 0.1, 95, -8, 1),
-    "angry":       (0.85, 0.20, 0.60, 0.1,  0.1,  0.15, 0.2, 140, -4, 0),
-    "melancholic": (0.30, 0.20, 0.30, 0.65, 0.25, 0.05, 0.1, 78, -11, 0),
-    "upbeat":      (0.80, 0.80, 0.80, 0.1,  0.05, 0.1, 0.15, 130, -5, 1),
-    "acoustic":    (0.35, 0.60, 0.45, 0.85, 0.3,  0.05, 0.1, 90,  -10, 1),
-    "instrumental":(0.50, 0.55, 0.50, 0.4,  0.85, 0.03, 0.1, 110, -8, 1),
-    "jazz":        (0.45, 0.60, 0.60, 0.5,  0.6,  0.05, 0.15, 100, -9, 1),
-    "classical":   (0.25, 0.55, 0.20, 0.9,  0.95, 0.03, 0.05, 80, -13, 1),
-    "hiphop":      (0.70, 0.65, 0.80, 0.1,  0.05, 0.25, 0.15, 95, -6, 0),
-    "rap":         (0.70, 0.55, 0.75, 0.1,  0.03, 0.35, 0.15, 90, -6, 0),
-    "electronic":  (0.80, 0.65, 0.80, 0.05, 0.5,  0.05, 0.1, 128, -5, 1),
-    "rock":        (0.80, 0.55, 0.65, 0.1,  0.1,  0.1,  0.25, 130, -5, 1),
-    "metal":       (0.90, 0.25, 0.55, 0.05, 0.15, 0.1,  0.25, 150, -3, 0),
-    "country":     (0.55, 0.65, 0.60, 0.55, 0.05, 0.05, 0.1, 110, -7, 1),
-    "soul":        (0.55, 0.70, 0.65, 0.4,  0.1,  0.1,  0.15, 100, -7, 1),
-    "morning":     (0.40, 0.65, 0.50, 0.6,  0.2,  0.05, 0.1, 95,  -9, 1),
-    "night":       (0.50, 0.45, 0.60, 0.3,  0.2,  0.1,  0.1, 105, -8, 0),
-    "sunday":      (0.30, 0.60, 0.40, 0.7,  0.25, 0.05, 0.1, 85,  -10, 1),
-    "driving":     (0.75, 0.65, 0.70, 0.2,  0.1,  0.1,  0.15, 120, -6, 1),
-    "coding":      (0.45, 0.50, 0.40, 0.35, 0.60, 0.05, 0.1, 110, -8, 1),
+    # (energy, valence, danceability, acousticness, tempo, speechiness, instrumentalness, mode)
+    "happy":       (0.75, 0.80, 0.75, 0.20, 125, 0.10, 0.05, 1),
+    "sad":         (0.25, 0.20, 0.30, 0.70,  80, 0.10, 0.20, 0),
+    "energetic":   (0.90, 0.70, 0.80, 0.10, 140, 0.10, 0.05, 1),
+    "chill":       (0.30, 0.55, 0.45, 0.60,  90, 0.05, 0.30, 1),
+    "relaxed":     (0.25, 0.55, 0.35, 0.70,  85, 0.05, 0.35, 1),
+    "focus":       (0.45, 0.50, 0.40, 0.40, 110, 0.05, 0.65, 1),
+    "study":       (0.35, 0.50, 0.35, 0.50, 100, 0.05, 0.70, 1),
+    "workout":     (0.90, 0.65, 0.80, 0.05, 145, 0.10, 0.05, 1),
+    "party":       (0.85, 0.80, 0.90, 0.05, 130, 0.10, 0.03, 1),
+    "romantic":    (0.45, 0.65, 0.55, 0.50,  95, 0.05, 0.20, 1),
+    "angry":       (0.85, 0.20, 0.60, 0.10, 140, 0.15, 0.10, 0),
+    "melancholic": (0.30, 0.20, 0.30, 0.65,  78, 0.05, 0.25, 0),
+    "upbeat":      (0.80, 0.80, 0.80, 0.10, 130, 0.10, 0.05, 1),
+    "acoustic":    (0.35, 0.60, 0.45, 0.85,  90, 0.05, 0.30, 1),
+    "instrumental":(0.50, 0.55, 0.50, 0.40, 110, 0.03, 0.85, 1),
+    "jazz":        (0.45, 0.60, 0.60, 0.50, 100, 0.05, 0.60, 1),
+    "classical":   (0.25, 0.55, 0.20, 0.90,  80, 0.03, 0.95, 1),
+    "hiphop":      (0.70, 0.65, 0.80, 0.10,  95, 0.25, 0.05, 0),
+    "rap":         (0.70, 0.55, 0.75, 0.10,  90, 0.35, 0.03, 0),
+    "electronic":  (0.80, 0.65, 0.80, 0.05, 128, 0.05, 0.50, 1),
+    "rock":        (0.80, 0.55, 0.65, 0.10, 130, 0.10, 0.10, 1),
+    "metal":       (0.90, 0.25, 0.55, 0.05, 150, 0.10, 0.15, 0),
+    "country":     (0.55, 0.65, 0.60, 0.55, 110, 0.05, 0.05, 1),
+    "soul":        (0.55, 0.70, 0.65, 0.40, 100, 0.10, 0.10, 1),
+    "morning":     (0.40, 0.65, 0.50, 0.60,  95, 0.05, 0.20, 1),
+    "night":       (0.50, 0.45, 0.60, 0.30, 105, 0.10, 0.20, 0),
+    "sunday":      (0.30, 0.60, 0.40, 0.70,  85, 0.05, 0.25, 1),
+    "driving":     (0.75, 0.65, 0.70, 0.20, 120, 0.10, 0.10, 1),
+    "coding":      (0.45, 0.50, 0.40, 0.35, 110, 0.05, 0.60, 1),
 }
 
 FEATURE_ORDER = ["energy", "valence", "danceability", "acousticness",
-                 "instrumentalness", "speechiness", "liveness", "tempo", "loudness", "mode"]
+                 "tempo", "speechiness", "instrumentalness", "mode"]
 
 
 def _text_to_feature_vector(text: str, energy_level: str = None, valence_preference: str = None) -> tuple[dict, float]:
@@ -88,7 +88,7 @@ def _text_to_feature_vector(text: str, energy_level: str = None, valence_prefere
         confidence = min(0.95, 0.5 + 0.15 * len(matches))
     else:
         # Fallback: neutral midpoints
-        arr = np.array([0.5, 0.5, 0.5, 0.4, 0.2, 0.1, 0.1, 110.0, -8.0, 1.0])
+        arr = np.array([0.5, 0.5, 0.5, 0.4, 110.0, 0.1, 0.2, 1.0])
         confidence = 0.3
 
     fv = dict(zip(FEATURE_ORDER, arr.tolist()))
@@ -116,8 +116,7 @@ def handle_assess_mood(mood_description: str, energy_level: str = None, valence_
 def handle_find_cluster(
     energy: float, valence: float, danceability: float,
     acousticness: float = 0.4, instrumentalness: float = 0.2,
-    speechiness: float = 0.1, liveness: float = 0.1,
-    tempo: float = 110.0, loudness: float = -8.0, mode: float = 1.0,
+    speechiness: float = 0.1, tempo: float = 110.0, mode: float = 1.0,
     top_n: int = 1,
 ) -> dict:
     m = _get_models()
@@ -128,8 +127,7 @@ def handle_find_cluster(
     clusters = metadata["clusters"]
 
     fv_array = np.array([[energy, valence, danceability, acousticness,
-                          tempo, loudness, speechiness, instrumentalness,
-                          liveness, mode]])
+                          tempo, speechiness, instrumentalness, mode]])
     X_scaled = scaler.transform(fv_array)
     X_pca = pca.transform(X_scaled)
 
@@ -282,7 +280,6 @@ def handle_refine_preferences(ambiguous_features: list, candidate_cluster_ids: l
         "instrumentalness": "Would you like music with vocals, or mostly instrumental tracks?",
         "speechiness":      "Are you okay with lots of lyrics and rap, or do you prefer melodic singing or no words at all?",
         "tempo":            "Do you want fast-paced, high-tempo tracks, or a slower, more measured pace?",
-        "liveness":         "Would you enjoy a live concert feel with audience energy, or studio-polished recordings?",
     }
     question = FOLLOW_UPS.get(ambiguous_features[0],
                               "Could you describe your ideal mood or listening context in a bit more detail?")

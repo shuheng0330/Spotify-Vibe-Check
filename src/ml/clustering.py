@@ -12,13 +12,12 @@ from src.data.preprocessor import CONTINUOUS_FEATURES
 
 CLUSTER_NAME_RULES = [
     ("Party Anthems",    {"energy": (0.7, 1), "valence": (0.6, 1), "danceability": (0.65, 1)}),
-    ("Dark Drive",       {"energy": (0.7, 1), "valence": (0, 0.45), "loudness": (-8, 0)}),
+    ("Dark Drive",       {"energy": (0.7, 1), "valence": (0, 0.45)}),
     ("Focus Flow",       {"instrumentalness": (0.4, 1), "speechiness": (0, 0.15)}),
     ("Acoustic Chill",   {"acousticness": (0.6, 1), "energy": (0, 0.5)}),
     ("Feel-Good Vibes",  {"valence": (0.65, 1), "energy": (0.4, 0.75)}),
     ("Rap & Spoken Word",{"speechiness": (0.2, 1)}),
     ("Sunny Afternoon",  {"valence": (0.55, 1), "energy": (0, 0.5)}),
-    ("Live & Raw",       {"liveness": (0.5, 1)}),
 ]
 
 
@@ -35,7 +34,7 @@ def _name_cluster(centroid: dict) -> str:
     return best_name
 
 
-def find_optimal_k(X_pca: np.ndarray, k_range=range(4, 16)) -> dict:
+def find_optimal_k(X_pca: np.ndarray, k_range=range(3, 9)) -> dict:
     results = {}
     for k in k_range:
         km = KMeans(n_clusters=k, random_state=42, n_init=10)
@@ -52,7 +51,7 @@ def fit_kmeans(X_pca: np.ndarray, n_clusters: int) -> tuple[KMeans, np.ndarray]:
     return km, labels
 
 
-def fit_dbscan(X_pca: np.ndarray, eps: float = 0.8, min_samples: int = 10) -> tuple[DBSCAN, np.ndarray]:
+def fit_dbscan(X_pca: np.ndarray, eps: float = 1.5, min_samples: int = 30) -> tuple[DBSCAN, np.ndarray]:
     db = DBSCAN(eps=eps, min_samples=min_samples)
     labels = db.fit_predict(X_pca)
     n_clusters = len(set(labels)) - (1 if -1 in labels else 0)

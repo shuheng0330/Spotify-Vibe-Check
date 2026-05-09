@@ -6,8 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 CONTINUOUS_FEATURES = [
     "energy", "valence", "danceability", "acousticness",
-    "tempo", "loudness", "speechiness", "instrumentalness",
-    "liveness", "mode",
+    "tempo", "speechiness", "instrumentalness", "mode",
 ]
 
 

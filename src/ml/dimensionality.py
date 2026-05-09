@@ -6,8 +6,7 @@ from sklearn.manifold import TSNE
 
 SCALED_FEATURE_COLS = [
     "energy_scaled", "valence_scaled", "danceability_scaled", "acousticness_scaled",
-    "tempo_scaled", "loudness_scaled", "speechiness_scaled", "instrumentalness_scaled",
-    "liveness_scaled", "mode_scaled",
+    "tempo_scaled", "speechiness_scaled", "instrumentalness_scaled", "mode_scaled",
 ]
 
 

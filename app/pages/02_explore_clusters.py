@@ -23,7 +23,7 @@ def _load_models():
 
 
 AUDIO_FEATURES = ["energy", "valence", "danceability", "acousticness",
-                   "tempo", "loudness", "speechiness", "instrumentalness", "liveness"]
+                   "tempo", "speechiness", "instrumentalness"]
 
 
 def main():
@@ -38,6 +38,7 @@ def main():
     df = models["tracks_df"]
     metadata = models["metadata"]
     tsne_2d = models.get("tsne_2d")
+    tsne_indices = models.get("tsne_indices")
     clusters = metadata.get("clusters", {})
     cluster_names = {cid: info["name"] for cid, info in clusters.items()}
 
@@ -51,21 +52,22 @@ def main():
     with tab1:
         st.subheader("2D Cluster Map (t-SNE)")
 
-        if tsne_2d is None or len(tsne_2d) != len(df):
+        if tsne_2d is None or tsne_indices is None:
             st.info("t-SNE coordinates not found. Re-run train_pipeline.py to generate them.")
         else:
-            labels = df["cluster_label"].values
+            df_tsne = df.iloc[tsne_indices].reset_index(drop=True)
+            labels = df_tsne["cluster_label"].values
 
             col1, col2 = st.columns([3, 1])
             with col2:
                 min_pop, max_pop = st.slider(
                     "Popularity range", 0, 100, (0, 100), step=5
                 )
-            mask = (df["popularity"] >= min_pop) & (df["popularity"] <= max_pop)
+            mask = (df_tsne["popularity"] >= min_pop) & (df_tsne["popularity"] <= max_pop)
             X_plot = tsne_2d[mask]
             lbl_plot = labels[mask]
-            names_plot = df.loc[mask, "track_name"].tolist()
-            artists_plot = df.loc[mask, "artist_name"].tolist()
+            names_plot = df_tsne.loc[mask, "track_name"].tolist()
+            artists_plot = df_tsne.loc[mask, "artist_name"].tolist()
 
             fig = scatter_2d(X_plot, lbl_plot, names_plot, artists_plot,
                              cluster_names=cluster_names, title="t-SNE Cluster Map")
