@@ -7,6 +7,9 @@ import random
 import numpy as np
 import pandas as pd
 from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Lazy import to avoid circular dependency; model_loader uses st.cache_resource
 _models = None
@@ -176,10 +179,13 @@ def handle_generate_playlist(cluster_id: int, n_tracks: int = 10, min_popularity
     else:
         subset = subset.sample(min(n_tracks, len(subset)), random_state=42)
 
-    cols = ["track_name", "artist_name", "album_name", "popularity",
+    cols = ["track_id", "track_name", "artist_name", "album_name", "popularity",
             "energy", "valence", "danceability", "acousticness", "tempo"]
     available = [c for c in cols if c in subset.columns]
     playlist = subset[available].round(3).to_dict("records")
+
+    # Enrich with Spotify URLs and artwork via the still-working tracks endpoint
+    playlist = _enrich_with_spotify_links(playlist)
 
     cluster_name = metadata["clusters"].get(str(cluster_id), {}).get("name", f"Cluster {cluster_id}")
     return {
@@ -188,6 +194,47 @@ def handle_generate_playlist(cluster_id: int, n_tracks: int = 10, min_popularity
         "n_tracks": len(playlist),
         "playlist": playlist,
     }
+
+
+def _enrich_with_spotify_links(playlist: list[dict]) -> list[dict]:
+    """
+    Use the Spotify Web API (sp.tracks — still available with Client Credentials)
+    to add spotify_url and artwork_url to each track in the playlist.
+    Falls back gracefully if credentials are missing or API call fails.
+    """
+    track_ids = [t.get("track_id") for t in playlist if t.get("track_id")]
+    if not track_ids:
+        return playlist
+
+    try:
+        import spotipy
+        from spotipy.oauth2 import SpotifyClientCredentials
+        sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+            client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+            client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+        ))
+        # Fetch in batches of 50 (API limit for /tracks)
+        id_to_meta = {}
+        for i in range(0, len(track_ids), 50):
+            chunk = track_ids[i:i+50]
+            result = sp.tracks(chunk)
+            for t in result.get("tracks") or []:
+                if not t:
+                    continue
+                images = t.get("album", {}).get("images", [])
+                id_to_meta[t["id"]] = {
+                    "spotify_url": t.get("external_urls", {}).get("spotify", ""),
+                    "artwork_url": images[0]["url"] if images else "",
+                }
+        for track in playlist:
+            meta = id_to_meta.get(track.get("track_id"), {})
+            track["spotify_url"] = meta.get("spotify_url", "")
+            track["artwork_url"] = meta.get("artwork_url", "")
+    except Exception:
+        # Silently skip enrichment if credentials are missing or API fails
+        pass
+
+    return playlist
 
 
 def handle_get_cluster_stats(cluster_id: int) -> dict:

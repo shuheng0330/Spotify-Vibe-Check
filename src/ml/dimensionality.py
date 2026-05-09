@@ -30,7 +30,7 @@ def transform_pca(pca: PCA, X: np.ndarray) -> np.ndarray:
 
 def fit_tsne(X_pca: np.ndarray, perplexity: int = 40, random_state: int = 42) -> np.ndarray:
     perplexity = min(perplexity, X_pca.shape[0] // 4)
-    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=random_state, n_iter=1000)
+    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=random_state, max_iter=1000)
     return tsne.fit_transform(X_pca)
 
 

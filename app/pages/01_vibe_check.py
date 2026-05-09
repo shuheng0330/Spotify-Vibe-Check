@@ -94,8 +94,20 @@ def main():
             with st.expander("Current Playlist", expanded=False):
                 import pandas as pd
                 pl_df = pd.DataFrame(st.session_state.current_playlist)
-                display_cols = [c for c in ["track_name", "artist_name", "popularity", "energy", "valence", "danceability"] if c in pl_df.columns]
-                st.dataframe(pl_df[display_cols], use_container_width=True, hide_index=True)
+                # Show Spotify links as clickable if enrichment succeeded
+                if "spotify_url" in pl_df.columns and pl_df["spotify_url"].any():
+                    pl_df["open"] = pl_df["spotify_url"].apply(
+                        lambda u: f"[Open]({u})" if u else ""
+                    )
+                    display_cols = [c for c in ["track_name", "artist_name", "popularity",
+                                                "energy", "valence", "danceability", "open"]
+                                    if c in pl_df.columns]
+                    st.dataframe(pl_df[display_cols], use_container_width=True, hide_index=True)
+                else:
+                    display_cols = [c for c in ["track_name", "artist_name", "popularity",
+                                                "energy", "valence", "danceability"]
+                                    if c in pl_df.columns]
+                    st.dataframe(pl_df[display_cols], use_container_width=True, hide_index=True)
 
         # Chat input
         user_input = st.chat_input("Describe your mood, energy, or what you want to listen to...")
