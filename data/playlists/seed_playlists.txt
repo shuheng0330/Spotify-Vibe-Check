@@ -1,0 +1,39 @@
+# Seed playlists for Spotify Vibe Check dataset collection
+# Format: one Spotify playlist ID per line
+# Target: ~2,500–3,500 unique tracks across diverse genres
+
+# Pop / Global
+37i9dQZEVXbMDoHDwVN2tF
+
+# Acoustic / Indie Folk
+37i9dQZEVXbIQnj7RRhdSX
+
+# Electronic / Dance
+37i9dQZF1DX4dyzvuaRJ0n
+
+# Hip-Hop / Rap
+37i9dQZF1DXcBWIGoYBM5M
+
+# Classical / Focus
+37i9dQZF1DWWEJlAGA9gs0
+
+# Jazz
+37i9dQZF1DXbITWG1ZJKYt
+
+# Heavy Metal / Rock
+37i9dQZF1DWTcqUzwhNmKv
+
+# Reggae
+37i9dQZF1DX2ywHBIDFoHK
+
+# Indie Folk
+37i9dQZF1DX4E3UdUs7fUx
+
+# Latin Pop
+37i9dQZF1DX10zKzsJ2jva
+
+# K-Pop
+37i9dQZF1DX9tPFAsjuVZb
+
+# R&B / Soul
+37i9dQZF1DX4SBhb3fqCJd
