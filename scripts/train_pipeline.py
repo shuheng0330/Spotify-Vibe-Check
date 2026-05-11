@@ -18,15 +18,16 @@ from src.ml.dimensionality import (
     get_explained_variance_report, save_pca,
 )
 from src.ml.clustering import (
-    find_optimal_k, fit_kmeans, fit_dbscan,
-    evaluate_clustering, select_best_model,
+    find_optimal_k, fit_kmeans,
+    evaluate_clustering,
     build_cluster_metadata, save_models,
 )
 from src.ml.silhouette_analysis import plot_silhouette_diagram, plot_explained_variance, plot_elbow
 
 PROCESSED_CSV = "data/processed/tracks_features.csv"
 MODEL_DIR = "models"
-TSNE_SAMPLE_SIZE = 6000
+TSNE_SAMPLE_SIZE = 5000
+KSEARCH_SAMPLE_SIZE = 50000 # silhouette_score is O(n²) — subsample for speed
 
 if __name__ == "__main__":
     os.makedirs(MODEL_DIR, exist_ok=True)
@@ -58,27 +59,22 @@ if __name__ == "__main__":
     np.save(f"{MODEL_DIR}/tsne_indices.npy", df_tsne_orig_idx)
 
     print("\nStep 3: Finding optimal k for KMeans...")
-    k_eval = find_optimal_k(X_pca)  # default range(3, 9)
+    ksearch_n = min(KSEARCH_SAMPLE_SIZE, len(X_pca))
+    ksearch_idx = np.sort(rng.choice(len(X_pca), size=ksearch_n, replace=False))
+    X_pca_ksearch = X_pca[ksearch_idx]
+    print(f"  (using {ksearch_n:,}-track subsample for silhouette scoring)")
+    k_eval = find_optimal_k(X_pca_ksearch)
     best_k = max(k_eval, key=lambda k: k_eval[k]["silhouette"])
     print(f"\nBest k = {best_k}")
 
-    print(f"\nStep 4: Fitting KMeans (k={best_k})")
+    print(f"\nStep 4: Fitting KMeans (k={best_k}) on full dataset")
     kmeans, km_labels = fit_kmeans(X_pca, best_k)
     km_eval = evaluate_clustering(X_pca, km_labels, "KMeans")
-
-    print("\nStep 5: Fitting DBSCAN")
-    dbscan, db_labels = fit_dbscan(X_pca)  # default eps=1.5, min_samples=30
-    db_eval = evaluate_clustering(X_pca, db_labels, "DBSCAN")
-
-    print("\nStep 6: Selecting best model")
-    winner = select_best_model(km_eval, db_eval)
-    print(f"  Winner: {winner.upper()}")
 
     # Assign cluster labels to ALL tracks (including outliers) via KMeans predict
     X_pca_full = pca.transform(X_full)
     df["cluster_label"] = kmeans.predict(X_pca_full)
 
-    winner_labels = km_labels if winner == "kmeans" else db_labels
     unique_clusters = sorted(set(km_labels) - {-1})
     centroids_original = np.array([
         df_clean[[c.replace("_scaled", "") for c in SCALED_FEATURE_COLS]].values[km_labels == cid].mean(axis=0)
@@ -86,16 +82,16 @@ if __name__ == "__main__":
     ])
     joblib.dump(centroids_original, f"{MODEL_DIR}/cluster_centroids.pkl")
 
-    print("\nStep 7: Building cluster metadata")
+    print("\nStep 5: Building cluster metadata")
     from src.data.preprocessor import CONTINUOUS_FEATURES
-    metadata = build_cluster_metadata(df_clean, winner_labels, km_eval, db_eval, winner)
+    metadata = build_cluster_metadata(df_clean, km_labels, km_eval)
     metadata["tsne_available"] = True
 
-    print("\nStep 8: Saving models")
-    save_models(kmeans, dbscan, centroids_original, metadata, MODEL_DIR)
+    print("\nStep 6: Saving models")
+    save_models(kmeans, centroids_original, metadata, MODEL_DIR)
     df.to_csv(PROCESSED_CSV, index=False)
 
-    print("\nStep 9: Saving diagnostic plots")
+    print("\nStep 7: Saving diagnostic plots")
     fig_sil = plot_silhouette_diagram(X_pca, km_labels, "KMEANS")
     fig_sil.savefig(f"{MODEL_DIR}/silhouette_diagram.png", dpi=120)
 
@@ -111,7 +107,5 @@ if __name__ == "__main__":
         json.dump({str(k): v for k, v in k_eval.items()}, f, indent=2)
 
     print(f"\nAll done!")
-    print(f"  KMeans silhouette : {km_eval['silhouette']:.4f}")
-    print(f"  DBSCAN silhouette : {db_eval['silhouette']:.4f}")
-    print(f"  Winner            : {winner.upper()}")
-    print(f"  Clusters          : {metadata['evaluation']['kmeans_n_clusters' if winner=='kmeans' else 'dbscan_n_clusters']}")
+    print(f"  Silhouette : {km_eval['silhouette']:.4f}")
+    print(f"  Clusters   : {km_eval['n_clusters']}")

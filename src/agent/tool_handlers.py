@@ -126,13 +126,17 @@ def handle_find_cluster(
     metadata = m["metadata"]
     clusters = metadata["clusters"]
 
-    fv_array = np.array([[energy, valence, danceability, acousticness,
-                          tempo, speechiness, instrumentalness, mode]])
-    X_scaled = scaler.transform(fv_array)
+    fv_df = pd.DataFrame(
+        [[energy, valence, danceability, acousticness,
+          tempo, speechiness, instrumentalness, mode]],
+        columns=FEATURE_ORDER,
+    )
+    X_scaled = scaler.transform(fv_df)
     X_pca = pca.transform(X_scaled)
 
     # Centroids are stored in original feature space; transform them too
-    centroids_scaled = scaler.transform(centroids)
+    centroids_df = pd.DataFrame(centroids, columns=FEATURE_ORDER)
+    centroids_scaled = scaler.transform(centroids_df)
     centroids_pca = pca.transform(centroids_scaled)
 
     dists = np.linalg.norm(centroids_pca - X_pca, axis=1)
@@ -205,8 +209,10 @@ def _enrich_with_spotify_links(playlist: list[dict]) -> list[dict]:
         return playlist
 
     try:
+        import logging
         import spotipy
         from spotipy.oauth2 import SpotifyClientCredentials
+        logging.getLogger("spotipy").setLevel(logging.CRITICAL)
         sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
             client_id=os.getenv("SPOTIPY_CLIENT_ID"),
             client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
@@ -215,7 +221,7 @@ def _enrich_with_spotify_links(playlist: list[dict]) -> list[dict]:
         id_to_meta = {}
         for i in range(0, len(track_ids), 50):
             chunk = track_ids[i:i+50]
-            result = sp.tracks(chunk)
+            result = sp.tracks(chunk, market="US")
             for t in result.get("tracks") or []:
                 if not t:
                     continue
