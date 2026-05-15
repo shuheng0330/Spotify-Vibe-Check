@@ -6,6 +6,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score, davies_bouldin_score
 
 from src.data.preprocessor import CONTINUOUS_FEATURES
@@ -55,6 +56,16 @@ def fit_kmeans(X_pca: np.ndarray, n_clusters: int) -> tuple[KMeans, np.ndarray]:
     return km, labels
 
 
+def fit_gmm(X_pca: np.ndarray, n_components: int) -> tuple[GaussianMixture, np.ndarray]:
+    gmm = GaussianMixture(n_components=n_components, random_state=42, n_init=3)
+    labels = gmm.fit_predict(X_pca)
+    return gmm, labels
+
+
+def select_best_model(km_eval: dict, gmm_eval: dict) -> str:
+    return "gmm" if gmm_eval["silhouette"] > km_eval["silhouette"] else "kmeans"
+
+
 def evaluate_clustering(X_pca: np.ndarray, labels: np.ndarray, method: str) -> dict:
     mask = labels != -1
     if mask.sum() < 2 or len(set(labels[mask])) < 2:
@@ -76,7 +87,9 @@ def evaluate_clustering(X_pca: np.ndarray, labels: np.ndarray, method: str) -> d
 def build_cluster_metadata(
     df_features: pd.DataFrame,
     labels: np.ndarray,
-    kmeans_eval: dict,
+    winner_eval: dict,
+    km_eval: dict | None = None,
+    gmm_eval: dict | None = None,
 ) -> dict:
     df = df_features.copy()
     df["cluster_label"] = labels
@@ -120,19 +133,25 @@ def build_cluster_metadata(
             "representative_tracks": rep_tracks,
         }
 
+    def _eval_summary(e: dict) -> dict:
+        return {"silhouette": e["silhouette"], "davies_bouldin": e["davies_bouldin"], "n_clusters": e["n_clusters"]}
+
     metadata = {
         "clusters": clusters,
         "evaluation": {
-            "silhouette": kmeans_eval["silhouette"],
-            "davies_bouldin": kmeans_eval["davies_bouldin"],
-            "n_clusters": kmeans_eval["n_clusters"],
+            "algorithm": winner_eval["method"],
+            "silhouette": winner_eval["silhouette"],
+            "davies_bouldin": winner_eval["davies_bouldin"],
+            "n_clusters": winner_eval["n_clusters"],
+            "kmeans": _eval_summary(km_eval) if km_eval else {},
+            "gmm": _eval_summary(gmm_eval) if gmm_eval else {},
         },
     }
     return metadata
 
 
-def save_models(kmeans: KMeans, centroids: np.ndarray, metadata: dict, path_prefix: str) -> None:
-    joblib.dump(kmeans, f"{path_prefix}/kmeans_model.pkl")
+def save_models(model, centroids: np.ndarray, metadata: dict, path_prefix: str) -> None:
+    joblib.dump(model, f"{path_prefix}/kmeans_model.pkl")
     joblib.dump(centroids, f"{path_prefix}/cluster_centroids.pkl")
     with open(f"{path_prefix}/cluster_metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)

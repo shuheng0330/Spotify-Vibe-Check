@@ -33,9 +33,6 @@ def load_all() -> dict:
     kmeans = joblib.load(f"{MODEL_DIR}/kmeans_model.pkl")
     centroids = joblib.load(f"{MODEL_DIR}/cluster_centroids.pkl")
 
-    dbscan_path = f"{MODEL_DIR}/dbscan_model.pkl"
-    dbscan = joblib.load(dbscan_path) if os.path.exists(dbscan_path) else None
-
     with open(f"{MODEL_DIR}/cluster_metadata.json") as f:
         metadata = json.load(f)
 
@@ -57,7 +54,6 @@ def load_all() -> dict:
         "scaler": scaler,
         "pca": pca,
         "kmeans": kmeans,
-        "dbscan": dbscan,
         "centroids": centroids,
         "metadata": metadata,
         "tracks_df": tracks_df,

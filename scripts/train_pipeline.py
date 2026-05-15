@@ -18,7 +18,7 @@ from src.ml.dimensionality import (
     get_explained_variance_report, save_pca,
 )
 from src.ml.clustering import (
-    find_optimal_k, fit_kmeans,
+    find_optimal_k, fit_kmeans, fit_gmm, select_best_model,
     evaluate_clustering,
     build_cluster_metadata, save_models,
 )
@@ -71,28 +71,39 @@ if __name__ == "__main__":
     kmeans, km_labels = fit_kmeans(X_pca, best_k)
     km_eval = evaluate_clustering(X_pca, km_labels, "KMeans")
 
-    # Assign cluster labels to ALL tracks (including outliers) via KMeans predict
-    X_pca_full = pca.transform(X_full)
-    df["cluster_label"] = kmeans.predict(X_pca_full)
+    print(f"\nStep 5: Fitting GMM (n_components={best_k}) on full dataset")
+    gmm, gmm_labels = fit_gmm(X_pca, best_k)
+    gmm_eval = evaluate_clustering(X_pca, gmm_labels, "GMM")
 
-    unique_clusters = sorted(set(km_labels) - {-1})
+    print("\nStep 6: Selecting best model")
+    winner = select_best_model(km_eval, gmm_eval)
+    winner_model  = kmeans   if winner == "kmeans" else gmm
+    winner_labels = km_labels if winner == "kmeans" else gmm_labels
+    winner_eval   = km_eval   if winner == "kmeans" else gmm_eval
+    print(f"  Winner: {winner.upper()}  (KMeans sil={km_eval['silhouette']:.4f}  GMM sil={gmm_eval['silhouette']:.4f})")
+
+    # Assign cluster labels to ALL tracks (including outliers) via winner predict
+    X_pca_full = pca.transform(X_full)
+    df["cluster_label"] = winner_model.predict(X_pca_full)
+
+    unique_clusters = sorted(set(winner_labels) - {-1})
     centroids_original = np.array([
-        df_clean[[c.replace("_scaled", "") for c in SCALED_FEATURE_COLS]].values[km_labels == cid].mean(axis=0)
+        df_clean[[c.replace("_scaled", "") for c in SCALED_FEATURE_COLS]].values[winner_labels == cid].mean(axis=0)
         for cid in unique_clusters
     ])
     joblib.dump(centroids_original, f"{MODEL_DIR}/cluster_centroids.pkl")
 
-    print("\nStep 5: Building cluster metadata")
+    print("\nStep 7: Building cluster metadata")
     from src.data.preprocessor import CONTINUOUS_FEATURES
-    metadata = build_cluster_metadata(df_clean, km_labels, km_eval)
+    metadata = build_cluster_metadata(df_clean, winner_labels, winner_eval, km_eval=km_eval, gmm_eval=gmm_eval)
     metadata["tsne_available"] = True
 
-    print("\nStep 6: Saving models")
-    save_models(kmeans, centroids_original, metadata, MODEL_DIR)
+    print("\nStep 8: Saving models")
+    save_models(winner_model, centroids_original, metadata, MODEL_DIR)
     df.to_csv(PROCESSED_CSV, index=False)
 
-    print("\nStep 7: Saving diagnostic plots")
-    fig_sil = plot_silhouette_diagram(X_pca, km_labels, "KMEANS")
+    print("\nStep 9: Saving diagnostic plots")
+    fig_sil = plot_silhouette_diagram(X_pca, winner_labels, winner.upper())
     fig_sil.savefig(f"{MODEL_DIR}/silhouette_diagram.png", dpi=120)
 
     fig_scree = plot_explained_variance(pca_report)
@@ -107,5 +118,6 @@ if __name__ == "__main__":
         json.dump({str(k): v for k, v in k_eval.items()}, f, indent=2)
 
     print(f"\nAll done!")
-    print(f"  Silhouette : {km_eval['silhouette']:.4f}")
-    print(f"  Clusters   : {km_eval['n_clusters']}")
+    print(f"  Winner     : {winner.upper()}")
+    print(f"  Silhouette : {winner_eval['silhouette']:.4f}")
+    print(f"  Clusters   : {winner_eval['n_clusters']}")

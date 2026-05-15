@@ -116,12 +116,20 @@ def plot_cluster_scatter_2d(X_tsne: np.ndarray, labels: np.ndarray,
 
 
 def generate_analysis_report(eval_dict: dict, cohesion_df: pd.DataFrame) -> str:
-    km_sil = eval_dict.get("kmeans_silhouette", 0)
-    db_sil = eval_dict.get("dbscan_silhouette", 0)
-    winner = eval_dict.get("winner", "kmeans")
-    n_clusters = eval_dict.get("kmeans_n_clusters" if winner == "kmeans" else "dbscan_n_clusters", 0)
+    winner = eval_dict.get("algorithm", "kmeans")
+    winner_sil = eval_dict.get("silhouette", 0)
+    n_clusters = eval_dict.get("n_clusters", 0)
     avg_coh = cohesion_df["cohesion (avg intra-dist)"].mean() if len(cohesion_df) else 0
     avg_sep = cohesion_df["separation (min inter-dist)"].mean() if len(cohesion_df) else 0
+
+    km = eval_dict.get("kmeans", {})
+    gmm = eval_dict.get("gmm", {})
+    km_sil  = km.get("silhouette", 0)
+    gmm_sil = gmm.get("silhouette", 0)
+    km_db   = km.get("davies_bouldin", 0)
+    gmm_db  = gmm.get("davies_bouldin", 0)
+    km_n    = km.get("n_clusters", 0)
+    gmm_n   = gmm.get("n_clusters", 0)
 
     report = f"""## Cluster Analysis Report
 
@@ -131,21 +139,20 @@ Components were retained to explain at least 95% of the total variance, reducing
 decorrelating correlated features such as energy and loudness.
 
 ### Clustering Algorithm Comparison
-Two unsupervised algorithms were evaluated: **K-Means** and **DBSCAN**.
+Two unsupervised algorithms were evaluated: **K-Means** and **Gaussian Mixture Model (GMM)**.
 
-| Metric | K-Means | DBSCAN |
-|--------|---------|--------|
-| Silhouette Score | {km_sil:.4f} | {db_sil:.4f} |
-| Davies-Bouldin Index | {eval_dict.get('kmeans_davies_bouldin', 0):.4f} | {eval_dict.get('dbscan_davies_bouldin', 0):.4f} |
-| Number of Clusters | {eval_dict.get('kmeans_n_clusters', 0)} | {eval_dict.get('dbscan_n_clusters', 0)} |
-| Noise Points | 0% | {eval_dict.get('dbscan_noise_pct', 0):.1f}% |
+| Metric | K-Means | GMM |
+|--------|---------|-----|
+| Silhouette Score | {km_sil:.4f} | {gmm_sil:.4f} |
+| Davies-Bouldin Index | {km_db:.4f} | {gmm_db:.4f} |
+| Number of Clusters | {km_n} | {gmm_n} |
 
 **Selected model: {winner.upper()}** — higher Silhouette Score indicates better-defined cluster boundaries.
 
 ### Silhouette Analysis
 The Silhouette Coefficient (range: −1 to +1) measures how similar a track is to its own cluster
 compared to other clusters. A score above 0.2 indicates reasonable structure. The selected model
-achieved a mean Silhouette Score of **{max(km_sil, db_sil):.4f}**, which is typical for continuous
+achieved a mean Silhouette Score of **{winner_sil:.4f}**, which is typical for continuous
 audio feature spaces where genre boundaries are inherently fuzzy.
 
 ### Cohesion and Separation
