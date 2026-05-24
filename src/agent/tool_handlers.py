@@ -6,7 +6,9 @@ import os
 import random
 import numpy as np
 import pandas as pd
-from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Lazy import to avoid circular dependency; model_loader uses st.cache_resource
 _models = None
@@ -24,40 +26,40 @@ def _get_models():
 # Mood word → feature midpoint lookup table
 # ---------------------------------------------------------------------------
 MOOD_KEYWORDS = {
-    # (energy, valence, danceability, acousticness, instrumentalness, speechiness, liveness, tempo, loudness, mode)
-    "happy":       (0.75, 0.80, 0.75, 0.2, 0.05, 0.1, 0.15, 125, -6, 1),
-    "sad":         (0.25, 0.20, 0.30, 0.7, 0.2,  0.1, 0.1,  80,  -12, 0),
-    "energetic":   (0.90, 0.70, 0.80, 0.1, 0.05, 0.1, 0.2,  140, -4, 1),
-    "chill":       (0.30, 0.55, 0.45, 0.6, 0.3,  0.05, 0.1, 90,  -10, 1),
-    "relaxed":     (0.25, 0.55, 0.35, 0.7, 0.35, 0.05, 0.1, 85,  -11, 1),
-    "focus":       (0.45, 0.50, 0.40, 0.4, 0.65, 0.05, 0.1, 110, -8, 1),
-    "study":       (0.35, 0.50, 0.35, 0.5, 0.70, 0.05, 0.1, 100, -9, 1),
-    "workout":     (0.90, 0.65, 0.80, 0.05, 0.05, 0.1, 0.2, 145, -3, 1),
-    "party":       (0.85, 0.80, 0.90, 0.05, 0.03, 0.1, 0.2, 130, -4, 1),
-    "romantic":    (0.45, 0.65, 0.55, 0.5,  0.2,  0.05, 0.1, 95, -8, 1),
-    "angry":       (0.85, 0.20, 0.60, 0.1,  0.1,  0.15, 0.2, 140, -4, 0),
-    "melancholic": (0.30, 0.20, 0.30, 0.65, 0.25, 0.05, 0.1, 78, -11, 0),
-    "upbeat":      (0.80, 0.80, 0.80, 0.1,  0.05, 0.1, 0.15, 130, -5, 1),
-    "acoustic":    (0.35, 0.60, 0.45, 0.85, 0.3,  0.05, 0.1, 90,  -10, 1),
-    "instrumental":(0.50, 0.55, 0.50, 0.4,  0.85, 0.03, 0.1, 110, -8, 1),
-    "jazz":        (0.45, 0.60, 0.60, 0.5,  0.6,  0.05, 0.15, 100, -9, 1),
-    "classical":   (0.25, 0.55, 0.20, 0.9,  0.95, 0.03, 0.05, 80, -13, 1),
-    "hiphop":      (0.70, 0.65, 0.80, 0.1,  0.05, 0.25, 0.15, 95, -6, 0),
-    "rap":         (0.70, 0.55, 0.75, 0.1,  0.03, 0.35, 0.15, 90, -6, 0),
-    "electronic":  (0.80, 0.65, 0.80, 0.05, 0.5,  0.05, 0.1, 128, -5, 1),
-    "rock":        (0.80, 0.55, 0.65, 0.1,  0.1,  0.1,  0.25, 130, -5, 1),
-    "metal":       (0.90, 0.25, 0.55, 0.05, 0.15, 0.1,  0.25, 150, -3, 0),
-    "country":     (0.55, 0.65, 0.60, 0.55, 0.05, 0.05, 0.1, 110, -7, 1),
-    "soul":        (0.55, 0.70, 0.65, 0.4,  0.1,  0.1,  0.15, 100, -7, 1),
-    "morning":     (0.40, 0.65, 0.50, 0.6,  0.2,  0.05, 0.1, 95,  -9, 1),
-    "night":       (0.50, 0.45, 0.60, 0.3,  0.2,  0.1,  0.1, 105, -8, 0),
-    "sunday":      (0.30, 0.60, 0.40, 0.7,  0.25, 0.05, 0.1, 85,  -10, 1),
-    "driving":     (0.75, 0.65, 0.70, 0.2,  0.1,  0.1,  0.15, 120, -6, 1),
-    "coding":      (0.45, 0.50, 0.40, 0.35, 0.60, 0.05, 0.1, 110, -8, 1),
+    # (energy, valence, danceability, acousticness, tempo, speechiness, instrumentalness, mode)
+    "happy":       (0.75, 0.80, 0.75, 0.20, 125, 0.10, 0.05, 1),
+    "sad":         (0.25, 0.20, 0.30, 0.70,  80, 0.10, 0.20, 0),
+    "energetic":   (0.90, 0.70, 0.80, 0.10, 140, 0.10, 0.05, 1),
+    "chill":       (0.30, 0.55, 0.45, 0.60,  90, 0.05, 0.30, 1),
+    "relaxed":     (0.25, 0.55, 0.35, 0.70,  85, 0.05, 0.35, 1),
+    "focus":       (0.45, 0.50, 0.40, 0.40, 110, 0.05, 0.65, 1),
+    "study":       (0.35, 0.50, 0.35, 0.50, 100, 0.05, 0.70, 1),
+    "workout":     (0.90, 0.65, 0.80, 0.05, 145, 0.10, 0.05, 1),
+    "party":       (0.85, 0.80, 0.90, 0.05, 130, 0.10, 0.03, 1),
+    "romantic":    (0.45, 0.65, 0.55, 0.50,  95, 0.05, 0.20, 1),
+    "angry":       (0.85, 0.20, 0.60, 0.10, 140, 0.15, 0.10, 0),
+    "melancholic": (0.30, 0.20, 0.30, 0.65,  78, 0.05, 0.25, 0),
+    "upbeat":      (0.80, 0.80, 0.80, 0.10, 130, 0.10, 0.05, 1),
+    "acoustic":    (0.35, 0.60, 0.45, 0.85,  90, 0.05, 0.30, 1),
+    "instrumental":(0.50, 0.55, 0.50, 0.40, 110, 0.03, 0.85, 1),
+    "jazz":        (0.45, 0.60, 0.60, 0.50, 100, 0.05, 0.60, 1),
+    "classical":   (0.25, 0.55, 0.20, 0.90,  80, 0.03, 0.95, 1),
+    "hiphop":      (0.70, 0.65, 0.80, 0.10,  95, 0.25, 0.05, 0),
+    "rap":         (0.70, 0.55, 0.75, 0.10,  90, 0.35, 0.03, 0),
+    "electronic":  (0.80, 0.65, 0.80, 0.05, 128, 0.05, 0.50, 1),
+    "rock":        (0.80, 0.55, 0.65, 0.10, 130, 0.10, 0.10, 1),
+    "metal":       (0.90, 0.25, 0.55, 0.05, 150, 0.10, 0.15, 0),
+    "country":     (0.55, 0.65, 0.60, 0.55, 110, 0.05, 0.05, 1),
+    "soul":        (0.55, 0.70, 0.65, 0.40, 100, 0.10, 0.10, 1),
+    "morning":     (0.40, 0.65, 0.50, 0.60,  95, 0.05, 0.20, 1),
+    "night":       (0.50, 0.45, 0.60, 0.30, 105, 0.10, 0.20, 0),
+    "sunday":      (0.30, 0.60, 0.40, 0.70,  85, 0.05, 0.25, 1),
+    "driving":     (0.75, 0.65, 0.70, 0.20, 120, 0.10, 0.10, 1),
+    "coding":      (0.45, 0.50, 0.40, 0.35, 110, 0.05, 0.60, 1),
 }
 
 FEATURE_ORDER = ["energy", "valence", "danceability", "acousticness",
-                 "instrumentalness", "speechiness", "liveness", "tempo", "loudness", "mode"]
+                 "tempo", "speechiness", "instrumentalness", "mode"]
 
 
 def _text_to_feature_vector(text: str, energy_level: str = None, valence_preference: str = None) -> tuple[dict, float]:
@@ -85,7 +87,7 @@ def _text_to_feature_vector(text: str, energy_level: str = None, valence_prefere
         confidence = min(0.95, 0.5 + 0.15 * len(matches))
     else:
         # Fallback: neutral midpoints
-        arr = np.array([0.5, 0.5, 0.5, 0.4, 0.2, 0.1, 0.1, 110.0, -8.0, 1.0])
+        arr = np.array([0.5, 0.5, 0.5, 0.4, 110.0, 0.1, 0.2, 1.0])
         confidence = 0.3
 
     fv = dict(zip(FEATURE_ORDER, arr.tolist()))
@@ -113,8 +115,7 @@ def handle_assess_mood(mood_description: str, energy_level: str = None, valence_
 def handle_find_cluster(
     energy: float, valence: float, danceability: float,
     acousticness: float = 0.4, instrumentalness: float = 0.2,
-    speechiness: float = 0.1, liveness: float = 0.1,
-    tempo: float = 110.0, loudness: float = -8.0, mode: float = 1.0,
+    speechiness: float = 0.1, tempo: float = 110.0, mode: float = 1.0,
     top_n: int = 1,
 ) -> dict:
     m = _get_models()
@@ -124,14 +125,17 @@ def handle_find_cluster(
     metadata = m["metadata"]
     clusters = metadata["clusters"]
 
-    fv_array = np.array([[energy, valence, danceability, acousticness,
-                          tempo, loudness, speechiness, instrumentalness,
-                          liveness, mode]])
-    X_scaled = scaler.transform(fv_array)
+    fv_df = pd.DataFrame(
+        [[energy, valence, danceability, acousticness,
+          tempo, speechiness, instrumentalness, mode]],
+        columns=FEATURE_ORDER,
+    )
+    X_scaled = scaler.transform(fv_df)
     X_pca = pca.transform(X_scaled)
 
     # Centroids are stored in original feature space; transform them too
-    centroids_scaled = scaler.transform(centroids)
+    centroids_df = pd.DataFrame(centroids, columns=FEATURE_ORDER)
+    centroids_scaled = scaler.transform(centroids_df)
     centroids_pca = pca.transform(centroids_scaled)
 
     dists = np.linalg.norm(centroids_pca - X_pca, axis=1)
@@ -176,10 +180,13 @@ def handle_generate_playlist(cluster_id: int, n_tracks: int = 10, min_popularity
     else:
         subset = subset.sample(min(n_tracks, len(subset)), random_state=42)
 
-    cols = ["track_name", "artist_name", "album_name", "popularity",
+    cols = ["track_id", "track_name", "artist_name", "album_name", "popularity",
             "energy", "valence", "danceability", "acousticness", "tempo"]
     available = [c for c in cols if c in subset.columns]
     playlist = subset[available].round(3).to_dict("records")
+
+    # Enrich with Spotify URLs and artwork via the still-working tracks endpoint
+    playlist = _enrich_with_spotify_links(playlist)
 
     cluster_name = metadata["clusters"].get(str(cluster_id), {}).get("name", f"Cluster {cluster_id}")
     return {
@@ -188,6 +195,49 @@ def handle_generate_playlist(cluster_id: int, n_tracks: int = 10, min_popularity
         "n_tracks": len(playlist),
         "playlist": playlist,
     }
+
+
+def _enrich_with_spotify_links(playlist: list[dict]) -> list[dict]:
+    """
+    Use the Spotify Web API (sp.tracks — still available with Client Credentials)
+    to add spotify_url and artwork_url to each track in the playlist.
+    Falls back gracefully if credentials are missing or API call fails.
+    """
+    track_ids = [t.get("track_id") for t in playlist if t.get("track_id")]
+    if not track_ids:
+        return playlist
+
+    try:
+        import logging
+        import spotipy
+        from spotipy.oauth2 import SpotifyClientCredentials
+        logging.getLogger("spotipy").setLevel(logging.CRITICAL)
+        sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+            client_id=os.getenv("SPOTIPY_CLIENT_ID"),
+            client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+        ))
+        # Fetch in batches of 50 (API limit for /tracks)
+        id_to_meta = {}
+        for i in range(0, len(track_ids), 50):
+            chunk = track_ids[i:i+50]
+            result = sp.tracks(chunk, market="US")
+            for t in result.get("tracks") or []:
+                if not t:
+                    continue
+                images = t.get("album", {}).get("images", [])
+                id_to_meta[t["id"]] = {
+                    "spotify_url": t.get("external_urls", {}).get("spotify", ""),
+                    "artwork_url": images[0]["url"] if images else "",
+                }
+        for track in playlist:
+            meta = id_to_meta.get(track.get("track_id"), {})
+            track["spotify_url"] = meta.get("spotify_url", "")
+            track["artwork_url"] = meta.get("artwork_url", "")
+    except Exception:
+        # Silently skip enrichment if credentials are missing or API fails
+        pass
+
+    return playlist
 
 
 def handle_get_cluster_stats(cluster_id: int) -> dict:
@@ -235,7 +285,6 @@ def handle_refine_preferences(ambiguous_features: list, candidate_cluster_ids: l
         "instrumentalness": "Would you like music with vocals, or mostly instrumental tracks?",
         "speechiness":      "Are you okay with lots of lyrics and rap, or do you prefer melodic singing or no words at all?",
         "tempo":            "Do you want fast-paced, high-tempo tracks, or a slower, more measured pace?",
-        "liveness":         "Would you enjoy a live concert feel with audience energy, or studio-polished recordings?",
     }
     question = FOLLOW_UPS.get(ambiguous_features[0],
                               "Could you describe your ideal mood or listening context in a bit more detail?")
@@ -251,7 +300,8 @@ def handle_generate_album_cover(
     acousticness: float = 0.4, instrumentalness: float = 0.2,
     tempo: float = 110.0, style_hint: str = None,
 ) -> dict:
-    # Build a structured DALL-E prompt from feature values
+    import urllib.parse
+
     energy_desc = "intense and high-energy" if energy > 0.6 else ("calm and peaceful" if energy < 0.4 else "moderately dynamic")
     valence_desc = "bright, optimistic, and uplifting" if valence > 0.6 else ("dark, moody, and introspective" if valence < 0.4 else "balanced and neutral in tone")
     acoustic_desc = "warm acoustic textures, natural wood and string elements" if acousticness > 0.6 else "sleek electronic and digital aesthetic"
@@ -267,21 +317,13 @@ def handle_generate_album_cover(
         f"Professional album art, square format, no text, no typography."
     )
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return {"error": "OPENAI_API_KEY not set in .env", "prompt_used": prompt}
-
-    client = OpenAI(api_key=api_key)
-    response = client.images.generate(
-        model="dall-e-3",
-        prompt=prompt,
-        size="1024x1024",
-        quality="standard",
-        n=1,
+    encoded = urllib.parse.quote(prompt)
+    image_url = (
+        f"https://image.pollinations.ai/prompt/{encoded}"
+        f"?width=1024&height=1024&nologo=true&model=flux"
     )
     return {
-        "image_url": response.data[0].url,
-        "revised_prompt": response.data[0].revised_prompt,
+        "image_url": image_url,
         "prompt_used": prompt,
     }
 

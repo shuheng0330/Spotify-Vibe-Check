@@ -1,0 +1,142 @@
+{
+  "id": "20260524_111427_acoustic-chill",
+  "saved_at": "2026-05-24T11:14:27",
+  "cluster": {
+    "cluster_id": 0,
+    "cluster_name": "Acoustic Chill",
+    "track_count": 68550
+  },
+  "centroid": {
+    "energy": 0.1993,
+    "valence": 0.2195,
+    "danceability": 0.3879,
+    "acousticness": 0.8473,
+    "tempo": 105.1989,
+    "speechiness": 0.0446,
+    "instrumentalness": 0.5741,
+    "mode": 0.7024
+  },
+  "tracks": [
+    {
+      "track_id": "0Ap1QHnMG76qUFIUmvw69Z",
+      "track_name": "Mozart: Oboe Quartet in F Major, K. 370: II. Adagio",
+      "artist_name": "['Wolfgang Amadeus Mozart', 'Nash Ensemble']",
+      "album_name": NaN,
+      "popularity": 7,
+      "energy": 0.056,
+      "valence": 0.038,
+      "danceability": 0.218,
+      "acousticness": 0.947,
+      "tempo": 68.976
+    },
+    {
+      "track_id": "7q09ZokzPK4V3qjOLQyeip",
+      "track_name": "Walken III",
+      "artist_name": "['Stephen Lynch']",
+      "album_name": NaN,
+      "popularity": 0,
+      "energy": 0.276,
+      "valence": 0.312,
+      "danceability": 0.559,
+      "acousticness": 0.768,
+      "tempo": 80.152
+    },
+    {
+      "track_id": "4QS548f1NPB9BmfWEA1Zl7",
+      "track_name": "Inochi no Namae (From Spirited Away) - Cosplay BGM",
+      "artist_name": "['I Love You! Project']",
+      "album_name": NaN,
+      "popularity": 20,
+      "energy": 0.515,
+      "valence": 0.248,
+      "danceability": 0.536,
+      "acousticness": 0.928,
+      "tempo": 79.444
+    },
+    {
+      "track_id": "45KhDIruolAkw3WGLWk0O5",
+      "track_name": "Frozen Synapse",
+      "artist_name": "['Audiomachine']",
+      "album_name": NaN,
+      "popularity": 0,
+      "energy": 0.523,
+      "valence": 0.038,
+      "danceability": 0.334,
+      "acousticness": 0.416,
+      "tempo": 84.915
+    },
+    {
+      "track_id": "1bZTG8olg75dqDjkHwEaCr",
+      "track_name": "Préludes / Book 1, CD 125: No. 4, Les sons et les parfums tournent dans l'air du soir",
+      "artist_name": "['Claude Debussy', 'Nelson Freire']",
+      "album_name": NaN,
+      "popularity": 5,
+      "energy": 0.006,
+      "valence": 0.037,
+      "danceability": 0.375,
+      "acousticness": 0.995,
+      "tempo": 69.145
+    },
+    {
+      "track_id": "2MuaFOZj37wxfuE5owVhF9",
+      "track_name": "Dharma",
+      "artist_name": "['Dhyana Dan', 'Red Neptune', 'Umpirage']",
+      "album_name": NaN,
+      "popularity": 52,
+      "energy": 0.12,
+      "valence": 0.04,
+      "danceability": 0.287,
+      "acousticness": 0.756,
+      "tempo": 70.212
+    },
+    {
+      "track_id": "7wR5OLkyqEjbGkaCF1FecS",
+      "track_name": "A Bitter Song",
+      "artist_name": "['Butterfly Boucher']",
+      "album_name": NaN,
+      "popularity": 0,
+      "energy": 0.197,
+      "valence": 0.117,
+      "danceability": 0.493,
+      "acousticness": 0.895,
+      "tempo": 109.894
+    },
+    {
+      "track_id": "47GhmK4V2A6EkAyYBzlMg5",
+      "track_name": "Folie à Deux",
+      "artist_name": "['Ippi', 'R.O.B']",
+      "album_name": NaN,
+      "popularity": 10,
+      "energy": 0.097,
+      "valence": 0.106,
+      "danceability": 0.665,
+      "acousticness": 0.93,
+      "tempo": 119.987
+    },
+    {
+      "track_id": "5afmHRmxGXrsvHwHa1p6sH",
+      "track_name": "Enkanomiya Lullaby (Night Version)",
+      "artist_name": "['Beside Bed']",
+      "album_name": NaN,
+      "popularity": 31,
+      "energy": 0.05,
+      "valence": 0.066,
+      "danceability": 0.434,
+      "acousticness": 0.993,
+      "tempo": 75.006
+    },
+    {
+      "track_id": "7tp56UO0P9qU2UqIS2wfA6",
+      "track_name": "Generation",
+      "artist_name": "['Armin van Buuren']",
+      "album_name": NaN,
+      "popularity": 31,
+      "energy": 0.412,
+      "valence": 0.148,
+      "danceability": 0.597,
+      "acousticness": 0.271,
+      "tempo": 127.973
+    }
+  ],
+  "has_cover": true
+}

@@ -116,12 +116,50 @@ def plot_cluster_scatter_2d(X_tsne: np.ndarray, labels: np.ndarray,
 
 
 def generate_analysis_report(eval_dict: dict, cohesion_df: pd.DataFrame) -> str:
-    km_sil = eval_dict.get("kmeans_silhouette", 0)
-    db_sil = eval_dict.get("dbscan_silhouette", 0)
-    winner = eval_dict.get("winner", "kmeans")
-    n_clusters = eval_dict.get("kmeans_n_clusters" if winner == "kmeans" else "dbscan_n_clusters", 0)
+    winner = eval_dict.get("algorithm", "kmeans")
+    winner_sil = eval_dict.get("silhouette", 0)
+    n_clusters = eval_dict.get("n_clusters", 0)
     avg_coh = cohesion_df["cohesion (avg intra-dist)"].mean() if len(cohesion_df) else 0
     avg_sep = cohesion_df["separation (min inter-dist)"].mean() if len(cohesion_df) else 0
+
+    km  = eval_dict.get("kmeans", {})
+    gmm = eval_dict.get("gmm", {})
+    dbs = eval_dict.get("dbscan", {})
+
+    km_sil   = km.get("silhouette", 0)
+    gmm_sil  = gmm.get("silhouette", 0)
+    dbs_sil  = dbs.get("silhouette", None)
+    km_db    = km.get("davies_bouldin", 0)
+    gmm_db   = gmm.get("davies_bouldin", 0)
+    dbs_db   = dbs.get("davies_bouldin", None)
+    km_n     = km.get("n_clusters", 0)
+    gmm_n    = gmm.get("n_clusters", 0)
+    dbs_n    = dbs.get("n_clusters", "N/A")
+    dbs_noise = dbs.get("noise_pct", None)
+
+    dbs_sil_str   = f"{dbs_sil:.4f}" if dbs_sil is not None and dbs_sil > -1 else "N/A"
+    dbs_db_str    = f"{dbs_db:.4f}"  if dbs_db  is not None else "N/A"
+    dbs_noise_str = f"{dbs_noise:.1f}%" if dbs_noise is not None else "N/A"
+
+    has_dbscan = bool(dbs)
+    algo_list = "**K-Means**, **Gaussian Mixture Model (GMM)**, and **DBSCAN** (density-based)" \
+        if has_dbscan else "**K-Means** and **Gaussian Mixture Model (GMM)**"
+
+    dbscan_row = f"\n| Noise Points | 0% | 0% | {dbs_noise_str} |" if has_dbscan else ""
+    dbscan_col_header = " | DBSCAN" if has_dbscan else ""
+    dbscan_col_sep    = " |-------" if has_dbscan else ""
+    dbscan_sil_col    = f" | {dbs_sil_str}" if has_dbscan else ""
+    dbscan_db_col     = f" | {dbs_db_str}"  if has_dbscan else ""
+    dbscan_n_col      = f" | {dbs_n}"       if has_dbscan else ""
+
+    dbscan_paragraph = f"""
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise) was evaluated as the
+density-based alternative. Unlike K-Means, it requires no pre-specified number of clusters
+but is sensitive to the neighbourhood radius (ε), which was auto-estimated from the data.
+DBSCAN produced **{dbs_n} clusters** with **{dbs_noise_str} noise points**.
+The lower Silhouette Score compared to K-Means confirms that audio features form compact,
+roughly spherical clusters in PCA space — a geometry that favours centroid-based methods over density-based ones.
+""" if has_dbscan else ""
 
     report = f"""## Cluster Analysis Report
 
@@ -131,21 +169,20 @@ Components were retained to explain at least 95% of the total variance, reducing
 decorrelating correlated features such as energy and loudness.
 
 ### Clustering Algorithm Comparison
-Two unsupervised algorithms were evaluated: **K-Means** and **DBSCAN**.
+Three unsupervised algorithms were evaluated: {algo_list}.
 
-| Metric | K-Means | DBSCAN |
-|--------|---------|--------|
-| Silhouette Score | {km_sil:.4f} | {db_sil:.4f} |
-| Davies-Bouldin Index | {eval_dict.get('kmeans_davies_bouldin', 0):.4f} | {eval_dict.get('dbscan_davies_bouldin', 0):.4f} |
-| Number of Clusters | {eval_dict.get('kmeans_n_clusters', 0)} | {eval_dict.get('dbscan_n_clusters', 0)} |
-| Noise Points | 0% | {eval_dict.get('dbscan_noise_pct', 0):.1f}% |
+| Metric | K-Means | GMM{dbscan_col_header} |
+|--------|---------|----{dbscan_col_sep}|
+| Silhouette Score | {km_sil:.4f} | {gmm_sil:.4f}{dbscan_sil_col} |
+| Davies-Bouldin Index | {km_db:.4f} | {gmm_db:.4f}{dbscan_db_col} |
+| Number of Clusters | {km_n} | {gmm_n}{dbscan_n_col} |{dbscan_row}
 
 **Selected model: {winner.upper()}** — higher Silhouette Score indicates better-defined cluster boundaries.
-
+{dbscan_paragraph}
 ### Silhouette Analysis
 The Silhouette Coefficient (range: −1 to +1) measures how similar a track is to its own cluster
 compared to other clusters. A score above 0.2 indicates reasonable structure. The selected model
-achieved a mean Silhouette Score of **{max(km_sil, db_sil):.4f}**, which is typical for continuous
+achieved a mean Silhouette Score of **{winner_sil:.4f}**, which is typical for continuous
 audio feature spaces where genre boundaries are inherently fuzzy.
 
 ### Cohesion and Separation

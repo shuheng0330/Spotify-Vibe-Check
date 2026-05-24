@@ -36,23 +36,38 @@ def main():
     tsne_2d = models.get("tsne_2d")
 
     # ---- Model comparison metrics ----
-    st.subheader("Model Comparison")
-    km_sil = eval_info.get("kmeans_silhouette", 0)
-    db_sil = eval_info.get("dbscan_silhouette", 0)
-    km_db = eval_info.get("kmeans_davies_bouldin", 0)
-    db_db = eval_info.get("dbscan_davies_bouldin", 0)
-    winner = eval_info.get("winner", "kmeans")
+    st.subheader("Model Comparison: K-Means vs GMM vs DBSCAN")
+    winner   = eval_info.get("algorithm", "kmeans")
+    km       = eval_info.get("kmeans", {})
+    gmm      = eval_info.get("gmm", {})
+    dbs      = eval_info.get("dbscan", {})
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("KMeans Silhouette", f"{km_sil:.4f}", delta=f"{'Winner' if winner=='kmeans' else ''}")
-    col2.metric("DBSCAN Silhouette", f"{db_sil:.4f}", delta=f"{'Winner' if winner=='dbscan' else ''}")
-    col3.metric("Selected Model", winner.upper())
-
-    col4, col5 = st.columns(2)
-    col4.metric("KMeans Davies-Bouldin", f"{km_db:.4f}", help="Lower is better")
-    col5.metric("DBSCAN Davies-Bouldin", f"{db_db:.4f}", help="Lower is better")
-    col4.metric("KMeans Clusters", eval_info.get("kmeans_n_clusters", "N/A"))
-    col5.metric("DBSCAN Clusters", f"{eval_info.get('dbscan_n_clusters', 'N/A')} (+{eval_info.get('dbscan_noise_pct', 0):.1f}% noise)")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.markdown("#### K-Means")
+        st.metric("Silhouette", f"{km.get('silhouette', 0):.4f}", delta="Winner" if winner == "KMeans" else None)
+        st.metric("Davies-Bouldin", f"{km.get('davies_bouldin', 0):.4f}", help="Lower is better")
+        st.metric("Clusters", km.get("n_clusters", "N/A"))
+        st.metric("Noise %", "0.0%")
+    with col2:
+        st.markdown("#### GMM")
+        st.metric("Silhouette", f"{gmm.get('silhouette', 0):.4f}", delta="Winner" if winner == "GMM" else None)
+        st.metric("Davies-Bouldin", f"{gmm.get('davies_bouldin', 0):.4f}", help="Lower is better")
+        st.metric("Clusters", gmm.get("n_clusters", "N/A"))
+        st.metric("Noise %", "0.0%")
+    with col3:
+        st.markdown("#### DBSCAN")
+        dbs_sil = dbs.get("silhouette", None)
+        sil_str = f"{dbs_sil:.4f}" if dbs_sil is not None and dbs_sil > -1 else "N/A"
+        st.metric("Silhouette", sil_str)
+        st.metric("Davies-Bouldin", f"{dbs.get('davies_bouldin', 0):.4f}", help="Lower is better")
+        st.metric("Clusters", dbs.get("n_clusters", "N/A"))
+        st.metric("Noise %", f"{dbs.get('noise_pct', 0):.1f}%")
+    with col4:
+        st.markdown("#### Selected Model")
+        st.metric("Algorithm", winner.upper())
+        st.metric("Silhouette", f"{eval_info.get('silhouette', 0):.4f}")
+        st.metric("Davies-Bouldin", f"{eval_info.get('davies_bouldin', 0):.4f}", help="Lower is better")
 
     st.divider()
 
@@ -63,14 +78,14 @@ def main():
     with diag_col1:
         sil_path = "models/silhouette_diagram.png"
         if os.path.exists(sil_path):
-            st.image(sil_path, caption="Silhouette Diagram", use_column_width=True)
+            st.image(sil_path, caption="Silhouette Diagram", use_container_width=True)
         else:
             st.info("Silhouette diagram not found. Re-run train_pipeline.py.")
 
     with diag_col2:
         scree_path = "models/scree_plot.png"
         if os.path.exists(scree_path):
-            st.image(scree_path, caption="PCA Scree Plot", use_column_width=True)
+            st.image(scree_path, caption="PCA Scree Plot", use_container_width=True)
         else:
             st.info("Scree plot not found. Re-run train_pipeline.py.")
 

@@ -6,8 +6,7 @@ from sklearn.manifold import TSNE
 
 SCALED_FEATURE_COLS = [
     "energy_scaled", "valence_scaled", "danceability_scaled", "acousticness_scaled",
-    "tempo_scaled", "loudness_scaled", "speechiness_scaled", "instrumentalness_scaled",
-    "liveness_scaled", "mode_scaled",
+    "tempo_scaled", "speechiness_scaled", "instrumentalness_scaled", "mode_scaled",
 ]
 
 
@@ -30,7 +29,7 @@ def transform_pca(pca: PCA, X: np.ndarray) -> np.ndarray:
 
 def fit_tsne(X_pca: np.ndarray, perplexity: int = 40, random_state: int = 42) -> np.ndarray:
     perplexity = min(perplexity, X_pca.shape[0] // 4)
-    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=random_state, n_iter=1000)
+    tsne = TSNE(n_components=2, perplexity=perplexity, random_state=random_state, max_iter=1000)
     return tsne.fit_transform(X_pca)
 
 

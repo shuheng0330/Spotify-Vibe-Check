@@ -1,116 +1,119 @@
+"""
+Data loading module — reads a pre-downloaded Spotify dataset CSV
+and formats it to match the pipeline's expected schema.
+
+Supported dataset schemas
+--------------------------
+Schema A (original ~89K Kaggle dataset by maharshipandya):
+  track_id, track_name, artists, album_name, popularity, duration_ms,
+  energy, valence, danceability, acousticness, tempo, loudness,
+  speechiness, instrumentalness, liveness, key, mode, time_signature
+
+Schema B (300K dataset with Spotify URIs):
+  track_uri, name, artists_names, popularity, duration,
+  energy, valence, danceability, acousticness, tempo, loudness,
+  speechiness, instrumentalness, liveness, key, mode, time_signature
+
+Save your CSV as:  data/raw/spotify_kaggle.csv
+"""
 import os
-import time
 import logging
 import pandas as pd
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-from dotenv import load_dotenv
 
-load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-AUDIO_FEATURE_KEYS = [
-    "energy", "valence", "danceability", "acousticness",
-    "tempo", "loudness", "speechiness", "instrumentalness",
-    "liveness", "key", "mode", "time_signature",
-]
+# Schema A — original Kaggle dataset column mapping
+_SCHEMA_A = {
+    "track_id":         "track_id",
+    "track_name":       "track_name",
+    "artists":          "artist_name",
+    "album_name":       "album_name",
+    "popularity":       "popularity",
+    "duration_ms":      "duration_ms",
+    "energy":           "energy",
+    "valence":          "valence",
+    "danceability":     "danceability",
+    "acousticness":     "acousticness",
+    "tempo":            "tempo",
+    "loudness":         "loudness",
+    "speechiness":      "speechiness",
+    "instrumentalness": "instrumentalness",
+    "liveness":         "liveness",
+    "key":              "key",
+    "mode":             "mode",
+    "time_signature":   "time_signature",
+}
+
+# Schema B — 300K dataset with Spotify URIs
+_SCHEMA_B = {
+    "track_uri":        "track_id",       # strip "spotify:track:" prefix after rename
+    "name":             "track_name",
+    "artists_names":    "artist_name",
+    "popularity":       "popularity",
+    "duration":         "duration_ms",    # already in milliseconds
+    "energy":           "energy",
+    "valence":          "valence",
+    "danceability":     "danceability",
+    "acousticness":     "acousticness",
+    "tempo":            "tempo",
+    "loudness":         "loudness",
+    "speechiness":      "speechiness",
+    "instrumentalness": "instrumentalness",
+    "liveness":         "liveness",
+    "key":              "key",
+    "mode":             "mode",
+    "time_signature":   "time_signature",
+}
+
+KAGGLE_CSV = "data/raw/spotify_kaggle.csv"
 
 
-def get_spotify_client() -> spotipy.Spotify:
-    return spotipy.Spotify(
-        auth_manager=SpotifyClientCredentials(
-            client_id=os.getenv("SPOTIPY_CLIENT_ID"),
-            client_secret=os.getenv("SPOTIPY_CLIENT_SECRET"),
+def _detect_schema(columns: list[str]) -> dict:
+    if "track_uri" in columns:
+        logger.info("Detected Schema B (300K URI-based dataset)")
+        return _SCHEMA_B
+    logger.info("Detected Schema A (original Kaggle dataset)")
+    return _SCHEMA_A
+
+
+def load_kaggle_dataset(kaggle_csv: str = KAGGLE_CSV) -> pd.DataFrame:
+    if not os.path.exists(kaggle_csv):
+        raise FileNotFoundError(
+            f"\nDataset not found at '{kaggle_csv}'.\n"
+            "Save your CSV file as:  data/raw/spotify_kaggle.csv\n"
         )
-    )
+    logger.info(f"Loading dataset from {kaggle_csv}...")
+    df = pd.read_csv(kaggle_csv)
+    logger.info(f"  Loaded {len(df):,} rows, columns: {list(df.columns)}")
+    return df
 
 
-def fetch_playlist_tracks(sp: spotipy.Spotify, playlist_id: str) -> list[dict]:
-    tracks = []
-    results = sp.playlist_tracks(
-        playlist_id,
-        fields="items(track(id,name,artists,album(name),popularity,duration_ms)),next",
-        limit=100,
-    )
-    while results:
-        for item in results["items"]:
-            track = item.get("track")
-            if not track or not track.get("id"):
-                continue
-            tracks.append({
-                "track_id": track["id"],
-                "track_name": track["name"],
-                "artist_name": track["artists"][0]["name"] if track["artists"] else "",
-                "album_name": track["album"]["name"],
-                "popularity": track.get("popularity", 0),
-                "duration_ms": track.get("duration_ms", 0),
-            })
-        if results.get("next"):
-            time.sleep(0.3)
-            results = sp.next(results)
-        else:
-            break
-    return tracks
+def collect_all_tracks(output_csv: str) -> pd.DataFrame:
+    df_raw = load_kaggle_dataset()
 
+    schema = _detect_schema(list(df_raw.columns))
+    rename_map = {k: v for k, v in schema.items() if k in df_raw.columns}
+    df = df_raw.rename(columns=rename_map)
 
-def fetch_audio_features_batch(sp: spotipy.Spotify, track_ids: list[str]) -> list[dict]:
-    features = []
-    for i in range(0, len(track_ids), 100):
-        chunk = track_ids[i : i + 100]
-        retries = 0
-        while retries < 3:
-            try:
-                result = sp.audio_features(chunk)
-                features.extend([f for f in result if f is not None])
-                time.sleep(0.5)
-                break
-            except spotipy.exceptions.SpotifyException as e:
-                if e.http_status == 429:
-                    wait = int(e.headers.get("Retry-After", 5))
-                    logger.warning(f"Rate limited, waiting {wait}s")
-                    time.sleep(wait)
-                    retries += 1
-                else:
-                    raise
-    return features
+    # Keep only the columns we need (fill missing optional ones)
+    keep_cols = list(schema.values())
+    available = [c for c in keep_cols if c in df.columns]
+    df = df[available].copy()
 
+    # Schema B: track_id is a full URI — extract the bare ID
+    if "track_id" in df.columns and df["track_id"].astype(str).str.startswith("spotify:track:").any():
+        df["track_id"] = df["track_id"].astype(str).str.split(":").str[-1]
+        logger.info("Extracted bare track IDs from Spotify URIs")
 
-def collect_all_tracks(playlist_file: str, output_csv: str) -> pd.DataFrame:
-    sp = get_spotify_client()
+    # album_name is absent in Schema B — fill with empty string
+    if "album_name" not in df.columns:
+        df["album_name"] = ""
 
-    with open(playlist_file) as f:
-        playlist_ids = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    df = df.dropna(subset=["track_id"])
+    df = df.drop_duplicates(subset="track_id")
 
-    all_tracks: dict[str, dict] = {}
-    for pid in playlist_ids:
-        logger.info(f"Fetching playlist {pid}")
-        try:
-            tracks = fetch_playlist_tracks(sp, pid)
-            for t in tracks:
-                all_tracks[t["track_id"]] = t
-            logger.info(f"  -> {len(tracks)} tracks (total unique: {len(all_tracks)})")
-        except Exception as e:
-            logger.error(f"Failed playlist {pid}: {e}")
-
-    track_list = list(all_tracks.values())
-    track_ids = [t["track_id"] for t in track_list]
-    logger.info(f"Fetching audio features for {len(track_ids)} tracks")
-    features = fetch_audio_features_batch(sp, track_ids)
-
-    feature_map = {f["id"]: f for f in features}
-    rows = []
-    for t in track_list:
-        feat = feature_map.get(t["track_id"])
-        if feat is None:
-            continue
-        row = dict(t)
-        for key in AUDIO_FEATURE_KEYS:
-            row[key] = feat.get(key)
-        rows.append(row)
-
-    df = pd.DataFrame(rows)
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)
     df.to_csv(output_csv, index=False)
-    logger.info(f"Saved {len(df)} tracks to {output_csv}")
+    logger.info(f"Saved {len(df):,} tracks to {output_csv}")
     return df
