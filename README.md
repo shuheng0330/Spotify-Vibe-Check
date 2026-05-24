@@ -22,8 +22,8 @@ The app groups tracks by acoustic profile, then lets users describe a mood or li
 
 - Python 3.10 or higher
 - A [Spotify Developer](https://developer.spotify.com/dashboard) app (Client ID + Secret)
-- A [Google AI Studio](https://aistudio.google.com/app/apikey) API key for Gemini
-- *(Optional)* An OpenAI API key for DALL-E album cover generation
+- An [OpenRouter](https://openrouter.ai/) API key (free tier available) for the DJ agent
+- Album cover generation uses [Pollinations.ai](https://pollinations.ai/) — no API key required
 
 ### 1. Clone and install dependencies
 

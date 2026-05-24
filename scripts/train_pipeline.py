@@ -75,7 +75,8 @@ if __name__ == "__main__":
     gmm, gmm_labels = fit_gmm(X_pca, best_k)
     gmm_eval = evaluate_clustering(X_pca, gmm_labels, "GMM")
 
-    print("\nStep 5b: Fitting DBSCAN (density-based, for comparison)")
+    print("\nStep 5b: Fitting DBSCAN (density-based — academic comparison only)")
+    print("  Note: DBSCAN excluded from winner selection — no predict() for unseen points")
     _, dbscan_labels, dbscan_eps = fit_dbscan(X_pca)
     dbscan_eval = evaluate_clustering(X_pca, dbscan_labels, "DBSCAN")
     print(f"  eps={dbscan_eps:.4f}  noise={dbscan_eval['noise_pct']:.1f}%  clusters={dbscan_eval['n_clusters']}")
@@ -99,7 +100,6 @@ if __name__ == "__main__":
     joblib.dump(centroids_original, f"{MODEL_DIR}/cluster_centroids.pkl")
 
     print("\nStep 7: Building cluster metadata")
-    from src.data.preprocessor import CONTINUOUS_FEATURES
     metadata = build_cluster_metadata(df_clean, winner_labels, winner_eval, km_eval=km_eval, gmm_eval=gmm_eval, dbscan_eval=dbscan_eval)
     metadata["tsne_available"] = True
 
