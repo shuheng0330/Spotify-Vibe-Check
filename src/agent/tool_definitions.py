@@ -150,9 +150,9 @@ DJ_TOOLS = [
         "function": {
             "name": "generate_album_cover",
             "description": (
-                "Generate a DALL-E 3 album cover image based on the aggregate audio feature "
-                "statistics of the current playlist. Only call this when the user explicitly "
-                "asks for an album cover or artwork."
+                "Generate an AI album cover image using a free image generation API (no API key required). "
+                "The image is built from the aggregate audio feature statistics of the current playlist. "
+                "Always call this tool when the user asks for an album cover or artwork — it always works."
             ),
             "parameters": {
                 "type": "object",

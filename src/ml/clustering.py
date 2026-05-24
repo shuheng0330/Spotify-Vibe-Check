@@ -5,9 +5,10 @@ import joblib
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, DBSCAN
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score, davies_bouldin_score
+from sklearn.neighbors import NearestNeighbors
 
 from src.data.preprocessor import CONTINUOUS_FEATURES
 
@@ -56,6 +57,20 @@ def fit_kmeans(X_pca: np.ndarray, n_clusters: int) -> tuple[KMeans, np.ndarray]:
     return km, labels
 
 
+def fit_dbscan(X_pca: np.ndarray, min_samples: int = 5) -> tuple[DBSCAN, np.ndarray, float]:
+    # Estimate eps via k-distance at the 80th percentile on a subsample
+    rng = np.random.default_rng(42)
+    sample_n = min(10_000, len(X_pca))
+    idx = rng.choice(len(X_pca), size=sample_n, replace=False)
+    nbrs = NearestNeighbors(n_neighbors=min_samples).fit(X_pca[idx])
+    distances, _ = nbrs.kneighbors(X_pca[idx])
+    eps = float(np.percentile(np.sort(distances[:, -1]), 80))
+    print(f"  DBSCAN auto-eps={eps:.4f}  min_samples={min_samples}")
+    dbscan = DBSCAN(eps=eps, min_samples=min_samples, n_jobs=-1)
+    labels = dbscan.fit_predict(X_pca)
+    return dbscan, labels, eps
+
+
 def fit_gmm(X_pca: np.ndarray, n_components: int) -> tuple[GaussianMixture, np.ndarray]:
     gmm = GaussianMixture(n_components=n_components, random_state=42, n_init=3)
     labels = gmm.fit_predict(X_pca)
@@ -90,6 +105,7 @@ def build_cluster_metadata(
     winner_eval: dict,
     km_eval: dict | None = None,
     gmm_eval: dict | None = None,
+    dbscan_eval: dict | None = None,
 ) -> dict:
     df = df_features.copy()
     df["cluster_label"] = labels
@@ -134,7 +150,12 @@ def build_cluster_metadata(
         }
 
     def _eval_summary(e: dict) -> dict:
-        return {"silhouette": e["silhouette"], "davies_bouldin": e["davies_bouldin"], "n_clusters": e["n_clusters"]}
+        return {
+            "silhouette": e["silhouette"],
+            "davies_bouldin": e["davies_bouldin"],
+            "n_clusters": e["n_clusters"],
+            "noise_pct": e.get("noise_pct", 0.0),
+        }
 
     metadata = {
         "clusters": clusters,
@@ -145,6 +166,7 @@ def build_cluster_metadata(
             "n_clusters": winner_eval["n_clusters"],
             "kmeans": _eval_summary(km_eval) if km_eval else {},
             "gmm": _eval_summary(gmm_eval) if gmm_eval else {},
+            "dbscan": _eval_summary(dbscan_eval) if dbscan_eval else {},
         },
     }
     return metadata

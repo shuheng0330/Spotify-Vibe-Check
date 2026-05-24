@@ -1,0 +1,142 @@
+{
+  "id": "20260524_004041_focus-flow",
+  "saved_at": "2026-05-24T00:40:41",
+  "cluster": {
+    "cluster_id": 2,
+    "cluster_name": "Focus Flow",
+    "track_count": 64214
+  },
+  "centroid": {
+    "energy": 0.6817,
+    "valence": 0.5084,
+    "danceability": 0.6097,
+    "acousticness": 0.2147,
+    "tempo": 123.2291,
+    "speechiness": 0.0588,
+    "instrumentalness": 0.2056,
+    "mode": 0.0
+  },
+  "tracks": [
+    {
+      "track_id": "0DWdj2oZMBFSzRsi2Cvfzf",
+      "track_name": "TQG",
+      "artist_name": "['KAROL G']",
+      "album_name": NaN,
+      "popularity": 96,
+      "energy": 0.63,
+      "valence": 0.607,
+      "danceability": 0.72,
+      "acousticness": 0.673,
+      "tempo": 179.974
+    },
+    {
+      "track_id": "4nrPB8O7Y7wsOCJdgXkthe",
+      "track_name": "Shakira: Bzrp Music Sessions, Vol. 53",
+      "artist_name": "['Bizarrap', 'Shakira']",
+      "album_name": NaN,
+      "popularity": 96,
+      "energy": 0.632,
+      "valence": 0.498,
+      "danceability": 0.778,
+      "acousticness": 0.274,
+      "tempo": 122.104
+    },
+    {
+      "track_id": "7oDd86yk8itslrA9HRP2ki",
+      "track_name": "Die For You - Remix",
+      "artist_name": "['The Weeknd', 'Ariana Grande']",
+      "album_name": NaN,
+      "popularity": 95,
+      "energy": 0.525,
+      "valence": 0.502,
+      "danceability": 0.531,
+      "acousticness": 0.232,
+      "tempo": 66.9
+    },
+    {
+      "track_id": "4uUG5RXrOk84mYEfFvj3cK",
+      "track_name": "I'm Good (Blue)",
+      "artist_name": "['David Guetta', 'Bebe Rexha']",
+      "album_name": NaN,
+      "popularity": 94,
+      "energy": 0.965,
+      "valence": 0.304,
+      "danceability": 0.561,
+      "acousticness": 0.004,
+      "tempo": 128.04
+    },
+    {
+      "track_id": "5ww2BF9slyYgNOk37BlC4u",
+      "track_name": "La Bachata",
+      "artist_name": "['Manuel Turizo']",
+      "album_name": NaN,
+      "popularity": 93,
+      "energy": 0.679,
+      "valence": 0.85,
+      "danceability": 0.835,
+      "acousticness": 0.583,
+      "tempo": 124.98
+    },
+    {
+      "track_id": "65FftemJ1DbbZ45DUfHJXE",
+      "track_name": "OMG",
+      "artist_name": "['NewJeans']",
+      "album_name": NaN,
+      "popularity": 92,
+      "energy": 0.771,
+      "valence": 0.739,
+      "danceability": 0.804,
+      "acousticness": 0.357,
+      "tempo": 126.956
+    },
+    {
+      "track_id": "0JXXNGljqupsJaZsgSbMZV",
+      "track_name": "Sure Thing",
+      "artist_name": "['Miguel']",
+      "album_name": NaN,
+      "popularity": 91,
+      "energy": 0.607,
+      "valence": 0.498,
+      "danceability": 0.684,
+      "acousticness": 0.027,
+      "tempo": 81.001
+    },
+    {
+      "track_id": "1lRtH4FszTrwwlK5gTSbXO",
+      "track_name": "AMG",
+      "artist_name": "['Natanael Cano', 'Peso Pluma', 'Gabito Ballesteros']",
+      "album_name": NaN,
+      "popularity": 91,
+      "energy": 0.73,
+      "valence": 0.786,
+      "danceability": 0.772,
+      "acousticness": 0.152,
+      "tempo": 136.175
+    },
+    {
+      "track_id": "2mpoNBkngUEwnaKoBhZ0vl",
+      "track_name": "PRC",
+      "artist_name": "['Peso Pluma', 'Natanael Cano']",
+      "album_name": NaN,
+      "popularity": 91,
+      "energy": 0.826,
+      "valence": 0.893,
+      "danceability": 0.784,
+      "acousticness": 0.096,
+      "tempo": 138.078
+    },
+    {
+      "track_id": "2oiixB9QMIzhWaHGVlQx4g",
+      "track_name": "Yandel 150",
+      "artist_name": "['Yandel', 'Feid']",
+      "album_name": NaN,
+      "popularity": 91,
+      "energy": 0.729,
+      "valence": 0.58,
+      "danceability": 0.783,
+      "acousticness": 0.049,
+      "tempo": 167.968
+    }
+  ],
+  "has_cover": true
+}

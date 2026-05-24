@@ -18,7 +18,7 @@ from src.ml.dimensionality import (
     get_explained_variance_report, save_pca,
 )
 from src.ml.clustering import (
-    find_optimal_k, fit_kmeans, fit_gmm, select_best_model,
+    find_optimal_k, fit_kmeans, fit_gmm, fit_dbscan, select_best_model,
     evaluate_clustering,
     build_cluster_metadata, save_models,
 )
@@ -75,6 +75,11 @@ if __name__ == "__main__":
     gmm, gmm_labels = fit_gmm(X_pca, best_k)
     gmm_eval = evaluate_clustering(X_pca, gmm_labels, "GMM")
 
+    print("\nStep 5b: Fitting DBSCAN (density-based, for comparison)")
+    _, dbscan_labels, dbscan_eps = fit_dbscan(X_pca)
+    dbscan_eval = evaluate_clustering(X_pca, dbscan_labels, "DBSCAN")
+    print(f"  eps={dbscan_eps:.4f}  noise={dbscan_eval['noise_pct']:.1f}%  clusters={dbscan_eval['n_clusters']}")
+
     print("\nStep 6: Selecting best model")
     winner = select_best_model(km_eval, gmm_eval)
     winner_model  = kmeans   if winner == "kmeans" else gmm
@@ -95,7 +100,7 @@ if __name__ == "__main__":
 
     print("\nStep 7: Building cluster metadata")
     from src.data.preprocessor import CONTINUOUS_FEATURES
-    metadata = build_cluster_metadata(df_clean, winner_labels, winner_eval, km_eval=km_eval, gmm_eval=gmm_eval)
+    metadata = build_cluster_metadata(df_clean, winner_labels, winner_eval, km_eval=km_eval, gmm_eval=gmm_eval, dbscan_eval=dbscan_eval)
     metadata["tsne_available"] = True
 
     print("\nStep 8: Saving models")

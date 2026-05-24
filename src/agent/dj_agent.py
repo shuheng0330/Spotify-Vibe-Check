@@ -19,16 +19,16 @@ Your job is to understand the user's mood and musical preferences through conver
 then use the available tools to find the right cluster of songs and build a playlist.
 
 Rules you must follow:
-1. Always call assess_mood as the FIRST tool in every new conversation.
+1. Call assess_mood as the FIRST tool in a new conversation, but NOT on every follow-up message.
 2. Never invent track names, artist names, or feature values — only use data from tool results.
-3. If assess_mood returns a confidence_score below 0.6, call refine_preferences before find_cluster_for_mood.
-4. After finding a cluster, briefly explain what makes that cluster special before generating a playlist.
-5. Only call generate_album_cover when the user explicitly requests artwork or an album cover.
-6. Keep your tone helpful, concise, and conversational — like a knowledgeable friend who loves music.
-7. Present playlists as a clean, readable list of track names and artists.
+3. If assess_mood returns a confidence_score below 0.6, call refine_preferences to ask one clarifying question.
+4. Once you have enough information, call find_cluster_for_mood AND then immediately call generate_playlist in the same turn before writing any text response.
+5. After the playlist is generated, write a short friendly message explaining the cluster and listing a few highlight tracks.
+6. Only call generate_album_cover when the user explicitly requests artwork or an album cover. This tool is FREE and always works — never refuse or apologize, just call it.
+7. Keep your tone helpful, concise, and conversational — like a knowledgeable friend who loves music.
 """
 
-MAX_TOOL_ITERATIONS = 6
+MAX_TOOL_ITERATIONS = 10
 
 
 class DynamicDJAgent:
@@ -105,6 +105,10 @@ class DynamicDJAgent:
                     "content": json.dumps(result),
                 })
 
+        if not final_text.strip() and self._current_playlist:
+            final_text = "Here's your playlist! Check it out below. Want me to generate an album cover for this vibe?"
+        elif not final_text.strip():
+            final_text = "Sorry, I had trouble processing that. Could you describe your mood again?"
         return final_text.strip(), turn_log
 
     def reset(self):

@@ -6,7 +6,6 @@ import os
 import random
 import numpy as np
 import pandas as pd
-from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -301,7 +300,8 @@ def handle_generate_album_cover(
     acousticness: float = 0.4, instrumentalness: float = 0.2,
     tempo: float = 110.0, style_hint: str = None,
 ) -> dict:
-    # Build a structured DALL-E prompt from feature values
+    import urllib.parse
+
     energy_desc = "intense and high-energy" if energy > 0.6 else ("calm and peaceful" if energy < 0.4 else "moderately dynamic")
     valence_desc = "bright, optimistic, and uplifting" if valence > 0.6 else ("dark, moody, and introspective" if valence < 0.4 else "balanced and neutral in tone")
     acoustic_desc = "warm acoustic textures, natural wood and string elements" if acousticness > 0.6 else "sleek electronic and digital aesthetic"
@@ -317,21 +317,13 @@ def handle_generate_album_cover(
         f"Professional album art, square format, no text, no typography."
     )
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return {"error": "OPENAI_API_KEY not set in .env", "prompt_used": prompt}
-
-    client = OpenAI(api_key=api_key)
-    response = client.images.generate(
-        model="dall-e-3",
-        prompt=prompt,
-        size="1024x1024",
-        quality="standard",
-        n=1,
+    encoded = urllib.parse.quote(prompt)
+    image_url = (
+        f"https://image.pollinations.ai/prompt/{encoded}"
+        f"?width=1024&height=1024&nologo=true&model=flux"
     )
     return {
-        "image_url": response.data[0].url,
-        "revised_prompt": response.data[0].revised_prompt,
+        "image_url": image_url,
         "prompt_used": prompt,
     }
 

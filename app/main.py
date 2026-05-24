@@ -30,6 +30,7 @@ def main():
         st.page_link("pages/01_vibe_check.py", label="Vibe Check (DJ Chat)")
         st.page_link("pages/02_explore_clusters.py", label="Explore Clusters")
         st.page_link("pages/03_academic_analysis.py", label="Academic Analysis")
+        st.page_link("pages/04_saved_playlists.py", label="Saved Playlists")
         st.divider()
 
         try:

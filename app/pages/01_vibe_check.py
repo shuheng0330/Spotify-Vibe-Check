@@ -27,6 +27,7 @@ def _init_state():
         "current_cluster": None,
         "current_playlist": None,
         "cover_url": None,
+        "cover_bytes": None,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -66,9 +67,48 @@ def main():
         else:
             st.caption("Start a conversation to see your cluster here.")
 
-        if st.session_state.cover_url:
+        if cluster and centroid and st.session_state.current_playlist:
+            st.divider()
+            if st.button("Generate Album Cover", type="primary", use_container_width=True):
+                with st.spinner("Generating album cover… this may take 20–30 seconds"):
+                    import requests
+                    from src.agent.tool_handlers import handle_generate_album_cover
+                    result = handle_generate_album_cover(
+                        cluster_name=cluster.get("cluster_name", "My Playlist"),
+                        energy=centroid.get("energy", 0.5),
+                        valence=centroid.get("valence", 0.5),
+                        acousticness=centroid.get("acousticness", 0.4),
+                        instrumentalness=centroid.get("instrumentalness", 0.2),
+                        tempo=centroid.get("tempo", 110.0),
+                    )
+                    if "image_url" in result:
+                        try:
+                            resp = requests.get(result["image_url"], timeout=60)
+                            resp.raise_for_status()
+                            st.session_state.cover_url = result["image_url"]
+                            st.session_state.cover_bytes = resp.content
+                        except Exception as e:
+                            st.error(f"Image generation failed: {e}")
+                    st.rerun()
+
+        if st.session_state.cover_bytes:
             st.subheader("Album Cover")
-            st.image(st.session_state.cover_url, use_column_width=True)
+            st.image(st.session_state.cover_bytes, use_container_width=True)
+
+        if cluster and st.session_state.current_playlist:
+            st.divider()
+            if st.button("Save Playlist", type="primary", use_container_width=True):
+                from app.components.playlist_store import save as save_playlist
+                try:
+                    save_playlist(
+                        cluster=st.session_state.current_cluster,
+                        centroid=centroid,
+                        tracks=st.session_state.current_playlist,
+                        cover_bytes=st.session_state.cover_bytes,
+                    )
+                    st.success("Playlist saved! View it in Saved Playlists.")
+                except Exception as e:
+                    st.error(f"Could not save: {e}")
 
         st.divider()
         if st.button("Start New Session", type="secondary"):
@@ -76,6 +116,7 @@ def main():
             st.session_state.current_cluster = None
             st.session_state.current_playlist = None
             st.session_state.cover_url = None
+            st.session_state.cover_bytes = None
             if "agent" in st.session_state:
                 st.session_state.agent.reset()
             st.rerun()
@@ -91,7 +132,7 @@ def main():
 
         # Show current playlist if available
         if st.session_state.current_playlist:
-            with st.expander("Current Playlist", expanded=False):
+            with st.expander("Current Playlist", expanded=True):
                 import pandas as pd
                 pl_df = pd.DataFrame(st.session_state.current_playlist)
                 # Show Spotify links as clickable if enrichment succeeded

@@ -135,7 +135,8 @@ def main():
                 sns.boxplot(data=df_plot, x="Cluster", y=feat, ax=axes[i],
                             palette="Set2", flierprops=dict(marker="o", markersize=2, alpha=0.3))
                 axes[i].set_title(feat.capitalize())
-                axes[i].tick_params(axis="x", rotation=30, labelsize=8)
+                axes[i].tick_params(axis="x", labelsize=9)
+                plt.setp(axes[i].get_xticklabels(), rotation=45, ha="right")
                 axes[i].set_xlabel("")
 
             for j in range(len(selected_features), len(axes)):
