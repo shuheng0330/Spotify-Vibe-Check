@@ -2,9 +2,6 @@ import json
 import numpy as np
 import pandas as pd
 import joblib
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score, davies_bouldin_score
@@ -78,15 +75,32 @@ def fit_gmm(X_pca: np.ndarray, n_components: int) -> tuple[GaussianMixture, np.n
 
 
 def select_best_model(km_eval: dict, gmm_eval: dict) -> str:
+    """
+    Compare KMeans vs GMM by Silhouette Score. DBSCAN is excluded from winner
+    selection because it is transductive (scikit-learn DBSCAN has no predict()
+    for new points) and does not produce centroids, making it incompatible with
+    the cold-start recommendation flow that requires mood-vector → nearest-centroid
+    lookup at inference time. DBSCAN results are retained for academic comparison.
+    """
     return "gmm" if gmm_eval["silhouette"] > km_eval["silhouette"] else "kmeans"
+
+
+_EVAL_SAMPLE = 50_000  # silhouette_score is O(n²) — subsample to avoid OOM
 
 
 def evaluate_clustering(X_pca: np.ndarray, labels: np.ndarray, method: str) -> dict:
     mask = labels != -1
     if mask.sum() < 2 or len(set(labels[mask])) < 2:
         return {"method": method, "silhouette": -1, "davies_bouldin": 999, "n_clusters": 0, "noise_pct": 100.0}
-    sil = silhouette_score(X_pca[mask], labels[mask])
-    db_score = davies_bouldin_score(X_pca[mask], labels[mask])
+    X_valid, l_valid = X_pca[mask], labels[mask]
+    if len(X_valid) > _EVAL_SAMPLE:
+        rng = np.random.default_rng(42)
+        idx = rng.choice(len(X_valid), size=_EVAL_SAMPLE, replace=False)
+        X_s, l_s = X_valid[idx], l_valid[idx]
+    else:
+        X_s, l_s = X_valid, l_valid
+    sil = silhouette_score(X_s, l_s)
+    db_score = davies_bouldin_score(X_valid, l_valid)
     n_clusters = len(set(labels[mask]))
     noise_pct = (labels == -1).mean() * 100
     print(f"{method}: silhouette={sil:.4f}  davies_bouldin={db_score:.4f}  clusters={n_clusters}")

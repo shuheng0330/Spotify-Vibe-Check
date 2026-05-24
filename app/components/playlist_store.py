@@ -1,10 +1,22 @@
 import json
+import math
 import re
 import shutil
 from datetime import datetime
 from pathlib import Path
 
 STORE_DIR = Path("data/saved_playlists")
+
+
+def _sanitize(obj):
+    """Recursively replace NaN/Inf floats with None so json.dump produces valid JSON."""
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    if isinstance(obj, dict):
+        return {k: _sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_sanitize(v) for v in obj]
+    return obj
 
 
 def _slug(name: str) -> str:
@@ -42,7 +54,7 @@ def save(
     }
 
     with open(folder / "playlist.json", "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
+        json.dump(_sanitize(payload), f, indent=2, ensure_ascii=False)
 
     if cover_bytes is not None:
         (folder / "cover.png").write_bytes(cover_bytes)
