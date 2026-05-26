@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import VibeCheckTab from './components/VibeCheckTab';
@@ -30,7 +30,6 @@ export default function App() {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const [vibeCheckState, setVibeCheckState] = useState<VibeCheckState>(() => createInitialVibeCheckState());
-  const [searchValue, setSearchValue] = useState<string>('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [appError, setAppError] = useState<string | null>(null);
 
@@ -114,17 +113,6 @@ export default function App() {
     setActiveTab('playlist_detail');
   };
 
-  const filteredPlaylists = useMemo(
-    () =>
-      playlists.filter(
-        (p) =>
-          p.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          p.tag.toLowerCase().includes(searchValue.toLowerCase()) ||
-          p.tracks.some((track) => track.title.toLowerCase().includes(searchValue.toLowerCase()))
-      ),
-    [playlists, searchValue]
-  );
-
   const activePlaylist = playlists.find((p) => p.id === selectedPlaylistId) || playlists[0];
 
   return (
@@ -135,11 +123,7 @@ export default function App() {
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} modelStatus={modelStatus} health={health} />
 
       <div className="md:ml-[260px] flex-grow flex flex-col pb-24 md:pb-8">
-        <Navbar
-          title={navbarTitles[activeTab] || 'Spotify Vibe Check'}
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-        />
+        <Navbar title={navbarTitles[activeTab] || 'Spotify Vibe Check'} />
 
         <main className="flex-grow p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto w-full">
           {appError && (
@@ -175,7 +159,7 @@ export default function App() {
 
               {activeTab === 'saved_playlists' && (
                 <SavedPlaylistsTab
-                  playlists={filteredPlaylists}
+                  playlists={playlists}
                   onDeletePlaylist={handleDeletePlaylist}
                   onOpenPlaylist={handleOpenPlaylist}
                   onAddNewPlaylist={() => setActiveTab('vibe_check')}
