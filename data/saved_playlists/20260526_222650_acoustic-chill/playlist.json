@@ -1,0 +1,143 @@
+{
+  "id": "20260526_222650_acoustic-chill",
+  "saved_at": "2026-05-26T22:26:50",
+  "cluster": {
+    "cluster_id": 0,
+    "cluster_name": "Acoustic Chill",
+    "track_count": 68550
+  },
+  "centroid": {
+    "energy": 0.1993,
+    "valence": 0.2195,
+    "danceability": 0.3879,
+    "acousticness": 0.8473,
+    "tempo": 105.1989,
+    "speechiness": 0.0446,
+    "instrumentalness": 0.5741,
+    "mode": 0.7024
+  },
+  "tracks": [
+    {
+      "track_id": "3YriJtNU0FTmdTE8vZUaxd",
+      "track_name": "Christmas Rainbows",
+      "artist_name": "['Joe Williams']",
+      "album_name": null,
+      "popularity": 25,
+      "energy": 0.079,
+      "valence": 0.181,
+      "danceability": 0.418,
+      "acousticness": 0.946,
+      "tempo": 164.022
+    },
+    {
+      "track_id": "6OJAk0lw3HVKjxsdudSDp6",
+      "track_name": "303 날 위하여 십자가의",
+      "artist_name": "['Various Artists']",
+      "album_name": null,
+      "popularity": 7,
+      "energy": 0.057,
+      "valence": 0.422,
+      "danceability": 0.734,
+      "acousticness": 0.988,
+      "tempo": 119.733
+    },
+    {
+      "track_id": "1iSOtAyqs3zZj4TxxP0RCy",
+      "track_name": "An Almaine",
+      "artist_name": "['Tobias Hume', 'Emma Kirky', 'Labyrinto', 'Paolo Pandolfo']",
+      "album_name": null,
+      "popularity": 10,
+      "energy": 0.011,
+      "valence": 0.168,
+      "danceability": 0.337,
+      "acousticness": 0.964,
+      "tempo": 112.157
+    },
+    {
+      "track_id": "06otkeidQKFvMoxVIGua2z",
+      "track_name": "Aurora",
+      "artist_name": "['Relief']",
+      "album_name": null,
+      "popularity": 0,
+      "energy": 0.326,
+      "valence": 0.039,
+      "danceability": 0.114,
+      "acousticness": 0.817,
+      "tempo": 165.632
+    },
+    {
+      "track_id": "2typlkPRolqtY5475a7oIb",
+      "track_name": "Denomination Blues, Pt. 1",
+      "artist_name": "['Washington Phillips']",
+      "album_name": null,
+      "popularity": 11,
+      "energy": 0.24,
+      "valence": 0.444,
+      "danceability": 0.49,
+      "acousticness": 0.979,
+      "tempo": 120.109
+    },
+    {
+      "track_id": "3hAGmPnGix8RTb1vy5qZcb",
+      "track_name": "Avenue",
+      "artist_name": "['H.E.R.']",
+      "album_name": null,
+      "popularity": 50,
+      "energy": 0.418,
+      "valence": 0.113,
+      "danceability": 0.364,
+      "acousticness": 0.509,
+      "tempo": 83.061
+    },
+    {
+      "track_id": "46DaQHCQ1YNZHeamuULiqw",
+      "track_name": "English Renaissance Dance",
+      "artist_name": "['Andrei Krylov']",
+      "album_name": null,
+      "popularity": 13,
+      "energy": 0.257,
+      "valence": 0.674,
+      "danceability": 0.456,
+      "acousticness": 0.96,
+      "tempo": 94.922
+    },
+    {
+      "track_id": "2jC2rZIaQgX5omQTRzuuyx",
+      "track_name": "Mary's Boy Child",
+      "artist_name": "['NTMY']",
+      "album_name": null,
+      "popularity": 32,
+      "energy": 0.095,
+      "valence": 0.365,
+      "danceability": 0.288,
+      "acousticness": 0.974,
+      "tempo": 139.298
+    },
+    {
+      "track_id": "1F3NriivfTSzcUnDNZlP56",
+      "track_name": "Lonely Classy Restaurants",
+      "artist_name": "['Piano Jazz Bgm']",
+      "album_name": null,
+      "popularity": 2,
+      "energy": 0.014,
+      "valence": 0.075,
+      "danceability": 0.694,
+      "acousticness": 0.986,
+      "tempo": 111.827
+    },
+    {
+      "track_id": "3M0YZKONqBRpxPMDTKA1WP",
+      "track_name": "The Alien",
+      "artist_name": "['Ben Salisbury', 'Geoff Barrow']",
+      "album_name": null,
+      "popularity": 33,
+      "energy": 0.203,
+      "valence": 0.034,
+      "danceability": 0.193,
+      "acousticness": 0.895,
+      "tempo": 133.749
+    }
+  ],
+  "cover_url": "https://image.pollinations.ai/prompt/Album%20cover%20artwork%20for%20a%20playlist%20called%20%27Acoustic%20Chill%27.%20The%20visual%20mood%20should%20feel%20dark%2C%20moody%2C%20and%20introspective.%20The%20composition%20should%20be%20calm%20and%20peaceful%20and%20mid-tempo.%20Use%20warm%20acoustic%20textures%2C%20natural%20wood%20and%20string%20elements.%20Style%3A%20clean%20and%20minimal.%20Professional%20album%20art%2C%20square%20format%2C%20no%20text%2C%20no%20typography.?width=1024&height=1024&nologo=true&model=flux",
+  "has_cover": true
+}

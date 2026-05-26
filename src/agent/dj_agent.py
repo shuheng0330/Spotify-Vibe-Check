@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from src.agent.response_formatting import format_active_playlist_response
 from src.agent.tool_definitions import DJ_TOOLS
 from src.agent.tool_handlers import TOOL_DISPATCH
 
@@ -51,6 +52,7 @@ class DynamicDJAgent:
 
     def send(self, user_message: str) -> tuple[str, list[dict]]:
         turn_log: list[dict] = []
+        playlist_generated_this_turn = False
         self._messages.append({"role": "user", "content": user_message})
 
         final_text = ""
@@ -96,6 +98,7 @@ class DynamicDJAgent:
                     self._current_cluster = result
                 elif fn_name == "generate_playlist" and "playlist" in result:
                     self._current_playlist = result.get("playlist")
+                    playlist_generated_this_turn = True
                 elif fn_name == "generate_album_cover" and "image_url" in result:
                     self._cover_url = result.get("image_url")
 
@@ -109,6 +112,12 @@ class DynamicDJAgent:
             final_text = "Here's your playlist! Check it out below. Want me to generate an album cover for this vibe?"
         elif not final_text.strip():
             final_text = "Sorry, I had trouble processing that. Could you describe your mood again?"
+        if playlist_generated_this_turn and self._current_playlist:
+            final_text = format_active_playlist_response(
+                cluster=self._current_cluster,
+                playlist=self._current_playlist,
+                assistant_text=final_text,
+            )
         return final_text.strip(), turn_log
 
     def reset(self):

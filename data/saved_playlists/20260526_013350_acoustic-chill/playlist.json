@@ -1,0 +1,143 @@
+{
+  "id": "20260526_013350_acoustic-chill",
+  "saved_at": "2026-05-26T01:33:50",
+  "cluster": {
+    "cluster_id": 0,
+    "cluster_name": "Acoustic Chill",
+    "track_count": 68550
+  },
+  "centroid": {
+    "energy": 0.1993,
+    "valence": 0.2195,
+    "danceability": 0.3879,
+    "acousticness": 0.8473,
+    "tempo": 105.1989,
+    "speechiness": 0.0446,
+    "instrumentalness": 0.5741,
+    "mode": 0.7024
+  },
+  "tracks": [
+    {
+      "track_id": "4NRoYlVwzhgeIatWLUzx6x",
+      "track_name": "Defiance Bay",
+      "artist_name": "['Justin Bell']",
+      "album_name": null,
+      "popularity": 42,
+      "energy": 0.105,
+      "valence": 0.114,
+      "danceability": 0.209,
+      "acousticness": 0.974,
+      "tempo": 82.225
+    },
+    {
+      "track_id": "46wsjUn8yH4QWboZDy8Um3",
+      "track_name": "Minuet in C-Sharp Minor, M. 42",
+      "artist_name": "['Ralph van Raat']",
+      "album_name": null,
+      "popularity": 1,
+      "energy": 0.018,
+      "valence": 0.379,
+      "danceability": 0.472,
+      "acousticness": 0.996,
+      "tempo": 82.858
+    },
+    {
+      "track_id": "7lDKmjx051iKv7kU6keNEm",
+      "track_name": "Este Seu Olhar",
+      "artist_name": "['Nara Leão']",
+      "album_name": null,
+      "popularity": 0,
+      "energy": 0.206,
+      "valence": 0.374,
+      "danceability": 0.476,
+      "acousticness": 0.838,
+      "tempo": 107.503
+    },
+    {
+      "track_id": "7ncVcOGX61x2BCsHOlOv9q",
+      "track_name": "Return to Faery Land (feat. Dulcamara)",
+      "artist_name": "['Musika Magika']",
+      "album_name": null,
+      "popularity": 25,
+      "energy": 0.268,
+      "valence": 0.136,
+      "danceability": 0.396,
+      "acousticness": 0.899,
+      "tempo": 133.321
+    },
+    {
+      "track_id": "3qIDeyLUv9NUONNY2iBRiv",
+      "track_name": "Good to Me",
+      "artist_name": "['Audrey Assad']",
+      "album_name": null,
+      "popularity": 37,
+      "energy": 0.349,
+      "valence": 0.291,
+      "danceability": 0.335,
+      "acousticness": 0.618,
+      "tempo": 119.633
+    },
+    {
+      "track_id": "4V60xUJpVSiJQXp8wo67Wk",
+      "track_name": "Quaggan Command",
+      "artist_name": "['Various Artists']",
+      "album_name": null,
+      "popularity": 20,
+      "energy": 0.057,
+      "valence": 0.037,
+      "danceability": 0.174,
+      "acousticness": 0.964,
+      "tempo": 76.319
+    },
+    {
+      "track_id": "1mObo9p8dYHMt4xE9HDVbF",
+      "track_name": "Little Lulu - Master Take",
+      "artist_name": "['Bill Evans']",
+      "album_name": null,
+      "popularity": 8,
+      "energy": 0.28,
+      "valence": 0.557,
+      "danceability": 0.634,
+      "acousticness": 0.788,
+      "tempo": 76.637
+    },
+    {
+      "track_id": "2eWvlTlhI8W5WgHn1BTLZ4",
+      "track_name": "Meditation Music Pt. 59",
+      "artist_name": "['Ambient Jasper', 'Sleepy Jasper']",
+      "album_name": null,
+      "popularity": 26,
+      "energy": 0.017,
+      "valence": 0.036,
+      "danceability": 0.293,
+      "acousticness": 0.995,
+      "tempo": 71.213
+    },
+    {
+      "track_id": "3udILGYhcDMq1Z0flCN7v1",
+      "track_name": "Mountain Lullaby",
+      "artist_name": "['Liquid Mind']",
+      "album_name": null,
+      "popularity": 0,
+      "energy": 0.154,
+      "valence": 0.034,
+      "danceability": 0.074,
+      "acousticness": 0.839,
+      "tempo": 77.885
+    },
+    {
+      "track_id": "60hCOjynwQ22QEbF3qV903",
+      "track_name": "Ambient Ascension",
+      "artist_name": "['Soothe My Soul']",
+      "album_name": null,
+      "popularity": 18,
+      "energy": 0.017,
+      "valence": 0.051,
+      "danceability": 0.179,
+      "acousticness": 0.866,
+      "tempo": 78.674
+    }
+  ],
+  "cover_url": "https://image.pollinations.ai/prompt/Album%20cover%20artwork%20for%20a%20playlist%20called%20%27Acoustic%20Chill%27.%20The%20visual%20mood%20should%20feel%20dark%2C%20moody%2C%20and%20introspective.%20The%20composition%20should%20be%20calm%20and%20peaceful%20and%20mid-tempo.%20Use%20warm%20acoustic%20textures%2C%20natural%20wood%20and%20string%20elements.%20Style%3A%20clean%20and%20minimal.%20Professional%20album%20art%2C%20square%20format%2C%20no%20text%2C%20no%20typography.?width=1024&height=1024&nologo=true&model=flux",
+  "has_cover": true
+}
