@@ -1,0 +1,12 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+tests/
+ARCHITECTURE_AND_CODING_DESIGN.md
+PROJECT_REQUIREMENTS.md
+PROJECT_STATUS.md
