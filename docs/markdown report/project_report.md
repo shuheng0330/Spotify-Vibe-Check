@@ -67,7 +67,7 @@ Eight continuous audio features are used for all ML steps:
 - Components are selected automatically to explain **≥ 95% of total variance**.
 - Minimum of 2 components is enforced to guarantee a valid distance metric.
 - The resulting low-dimensional representation decorrelates features (e.g., `energy` and `loudness` are correlated) and reduces noise before clustering.
-- **t-SNE** (2D) is computed separately on the PCA output for interactive visualisation only — it is not used for clustering or inference.
+- **t-SNE** (2D) is computed separately on the PCA output for interactive visualisation only — it is not used for clustering or inference. Because t-SNE is computationally expensive at scale, it is applied to a random **subsample of 5 000 tracks** (`TSNE_SAMPLE_SIZE = 5000`) rather than the full dataset.
 
 ### 3.3 Clustering (`src/ml/clustering.py`)
 
@@ -75,6 +75,7 @@ Three algorithms are trained and evaluated competitively:
 
 #### K-Means
 - Optimal k searched over `k ∈ [3, 15]` using the **Elbow Method** (inertia) and **Silhouette Score** in tandem.
+- Because `silhouette_score` has **O(n²)** time complexity, the k-search is performed on a random **subsample of 50 000 tracks** (`KSEARCH_SAMPLE_SIZE = 50000`) rather than the full dataset — making the search tractable even on 300K-track corpora.
 - Final model uses `n_init=20` random restarts for stability.
 
 #### Gaussian Mixture Model (GMM)
