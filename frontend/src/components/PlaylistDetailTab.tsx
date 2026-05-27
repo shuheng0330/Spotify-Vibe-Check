@@ -8,23 +8,41 @@ interface PlaylistDetailTabProps {
   onEditVibe?: () => void;
 }
 
+function clampUnit(value?: number) {
+  return Math.max(0, Math.min(1, value || 0));
+}
+
 export default function PlaylistDetailTab({ playlist, onBack }: PlaylistDetailTabProps) {
   const [copiedPrompt, setCopiedPrompt] = useState(false);
-  const tempoScore = Math.max(0, Math.min(1, playlist.bpm / 180));
-  const radarAxes = [
-    { label: 'Energy', value: playlist.energy / 100, x: 50, y: 9, labelClass: 'top-0 left-1/2 -translate-x-1/2' },
-    { label: 'Valence', value: playlist.valence / 100, x: 89, y: 37, labelClass: 'right-0 top-[31%]' },
-    { label: 'Dance', value: playlist.danceability / 100, x: 74, y: 86, labelClass: 'right-[12%] bottom-1' },
-    { label: 'Acoustic', value: playlist.acousticness / 100, x: 26, y: 86, labelClass: 'left-[8%] bottom-1' },
-    { label: 'Tempo', value: tempoScore, x: 11, y: 37, labelClass: 'left-0 top-[31%]' },
+  const featureScores = [
+    { label: 'Energy', axisLabel: 'ENERGY', value: clampUnit(playlist.energy / 100), color: '#53e076' },
+    { label: 'Valence', axisLabel: 'VALENCE', value: clampUnit(playlist.valence / 100), color: '#37d7ff' },
+    { label: 'Danceability', axisLabel: 'DANCEABILITY', value: clampUnit(playlist.danceability / 100), color: '#53e076' },
+    { label: 'Acousticness', axisLabel: 'ACOUSTIC', value: clampUnit(playlist.acousticness / 100), color: '#ffffff' },
+    { label: 'Instrumentalness', axisLabel: 'INSTRUMENTAL', value: clampUnit(playlist.centroid?.instrumentalness), color: '#bccbb9' },
+    { label: 'Speechiness', axisLabel: 'SPEECH', value: clampUnit(playlist.centroid?.speechiness), color: '#bccbb9' },
   ];
+  const CX = 70, CY = 70, R = 52;
+  const radarAxes = [
+    ...featureScores,
+  ];
+  const axisPt = (i: number, r: number) => {
+    const a = (i * Math.PI * 2) / 6;
+    return { x: CX + r * Math.cos(a), y: CY - r * Math.sin(a) };
+  };
+  const hexRing = (r: number) =>
+    [0, 1, 2, 3, 4, 5].map((i) => {
+      const p = axisPt(i, r);
+      return `${p.x},${p.y}`;
+    }).join(' ');
   const radarPoints = radarAxes
-    .map((axis) => {
-      const x = 50 + (axis.x - 50) * axis.value;
-      const y = 50 + (axis.y - 50) * axis.value;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    .map((axis, index) => {
+      const p = axisPt(index, R * axis.value);
+      return `${p.x.toFixed(1)},${p.y.toFixed(1)}`;
     })
     .join(' ');
+  const labelAnchors = ['start', 'start', 'end', 'end', 'end', 'start'] as const;
+  const labelBaselines = ['middle', 'auto', 'auto', 'middle', 'hanging', 'hanging'] as const;
 
   const handleCopyPrompt = () => {
     if (playlist.prompt) {
@@ -161,74 +179,76 @@ export default function PlaylistDetailTab({ playlist, onBack }: PlaylistDetailTa
         <div className="lg:col-span-4 space-y-6 select-none">
           {/* Audio vector polygon layout */}
           <div className="glass-panel p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-5">
               <h3 className="text-xs font-bold uppercase text-white font-mono tracking-widest">Audio Profile Cluster</h3>
-              <Activity size={16} className="text-[#53e076]" />
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-[#bccbb9] font-mono">
+                  Tempo: <strong className="text-[#53e076]">{playlist.bpm || '--'} BPM</strong>
+                </span>
+                <Activity size={16} className="text-[#53e076]" />
+              </div>
             </div>
 
-            <div className="relative w-full aspect-square mb-6 flex items-center justify-center p-7">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full h-full rounded-full border border-white/5"></div>
-                <div className="absolute w-[80%] h-[80%] rounded-full border border-white/5"></div>
-                <div className="absolute w-[60%] h-[60%] rounded-full border border-white/5"></div>
-                <div className="absolute w-[40%] h-[40%] rounded-full border border-white/5"></div>
-              </div>
-
-              <svg className="w-full h-full absolute" viewBox="0 0 100 100">
-                {radarAxes.map((axis) => (
-                  <line
-                    key={axis.label}
-                    x1="50"
-                    y1="50"
-                    x2={axis.x}
-                    y2={axis.y}
-                    stroke="rgba(255,255,255,0.08)"
-                    strokeWidth="0.5"
-                  />
+            <div className="flex justify-center select-none mb-6">
+              <svg viewBox="-28 -18 196 176" className="w-full max-w-[360px] h-[320px]">
+                {[R * 0.33, R * 0.66, R].map((r, ringIndex) => (
+                  <polygon key={ringIndex} points={hexRing(r)} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
                 ))}
+                {radarAxes.map((_, index) => {
+                  const p = axisPt(index, R);
+                  return <line key={index} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />;
+                })}
                 <polygon
-                  fill="rgba(83, 224, 118, 0.25)"
+                  fill="rgba(83,224,118,0.18)"
                   points={radarPoints}
                   stroke="#53e076"
                   strokeWidth="1.5"
-                ></polygon>
-                {radarAxes.map((axis) => (
-                  <circle
-                    key={`${axis.label}-dot`}
-                    cx={50 + (axis.x - 50) * axis.value}
-                    cy={50 + (axis.y - 50) * axis.value}
-                    fill="#53e076"
-                    r="2.2"
-                  />
-                ))}
+                  strokeLinejoin="round"
+                />
+                {radarAxes.map((axis, index) => {
+                  const p = axisPt(index, R * axis.value);
+                  return <circle key={`${axis.label}-dot`} cx={p.x} cy={p.y} fill="#53e076" r="2.4" />;
+                })}
+                <circle cx={CX} cy={CY} r="1.5" fill="rgba(255,255,255,0.4)" />
+                {radarAxes.map((axis, index) => {
+                  const p = axisPt(index, R + 15);
+                  return (
+                    <text
+                      key={`${axis.label}-label`}
+                      x={p.x}
+                      y={p.y}
+                      fontSize="6.5"
+                      fontFamily="monospace"
+                      fontWeight="700"
+                      fill="#bccbb9"
+                      textAnchor={labelAnchors[index]}
+                      dominantBaseline={labelBaselines[index]}
+                      letterSpacing="0.5"
+                    >
+                      {axis.axisLabel}
+                    </text>
+                  );
+                })}
               </svg>
-              {radarAxes.map((axis) => (
-                <div
-                  key={`${axis.label}-label`}
-                  className={`absolute ${axis.labelClass} text-[8px] font-bold text-[#bccbb9] uppercase font-mono tracking-widest`}
-                >
-                  {axis.label}
-                </div>
-              ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-xs font-sans">
-              <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                <p className="text-[9px] text-[#bccbb9] uppercase font-mono font-bold">Energy Index</p>
-                <p className="text-[#53e076] text-lg font-black mt-1 font-mono">{(playlist.energy / 100).toFixed(2)}</p>
-              </div>
-              <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                <p className="text-[9px] text-[#bccbb9] uppercase font-mono font-bold">Valence Index</p>
-                <p className="text-[#37d7ff] text-lg font-black mt-1 font-mono">{(playlist.valence / 100).toFixed(2)}</p>
-              </div>
-              <div className="bg-white/5 p-3 rounded-lg border border-white/5 font-mono">
-                <p className="text-[9px] text-[#bccbb9] uppercase font-mono font-bold">Danceability</p>
-                <p className="text-white text-lg font-black mt-1">{(playlist.danceability / 100).toFixed(2)}</p>
-              </div>
-              <div className="bg-white/5 p-3 rounded-lg border border-white/5 font-mono">
-                <p className="text-[9px] text-[#bccbb9] uppercase font-mono font-bold">Tempo (BPM)</p>
-                <p className="text-white text-lg font-black mt-1">{playlist.bpm} <span className="text-[10px] uppercase font-sans font-medium text-[#bccbb9]">BPM</span></p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3 text-xs font-sans">
+              {featureScores.map((feature) => (
+                <div key={feature.label} className="space-y-1">
+                  <div className="flex items-center justify-between gap-2 font-mono text-xs">
+                    <span className="text-[#bccbb9]">{feature.label}</span>
+                    <span className="font-bold" style={{ color: feature.color }}>
+                      {Math.round(feature.value * 100)}%
+                    </span>
+                  </div>
+                  <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${feature.value * 100}%`, backgroundColor: feature.color }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

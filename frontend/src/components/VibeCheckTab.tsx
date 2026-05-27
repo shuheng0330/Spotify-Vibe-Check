@@ -157,8 +157,8 @@ export default function VibeCheckTab({ clusters, state, onStateChange, onSavePla
     }
   };
 
-  // Radar geometry — 6-axis hexagon, 0° = right, counter-clockwise
-  const CX = 70, CY = 70, R = 45;
+  // Radar geometry: 6-axis hexagon, 0 degrees = right, counter-clockwise.
+  const CX = 70, CY = 70, R = 52;
   const radarAxes = [
     { label: 'ENERGY',           v: energy / 100,          color: '#53e076' },
     { label: 'VALENCE',          v: valence / 100,         color: '#37d7ff' },
@@ -236,9 +236,9 @@ export default function VibeCheckTab({ clusters, state, onStateChange, onSavePla
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+          <div className="space-y-6">
             <div className="flex justify-center select-none">
-              <svg viewBox="-20 -8 180 158" className="w-[210px] h-[210px]">
+              <svg viewBox="-28 -18 196 176" className="w-full max-w-[340px] h-[300px]">
                 {/* Grid rings */}
                 {[R * 0.33, R * 0.66, R].map((r, ri) => (
                   <polygon key={ri} points={hexRing(r)} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
@@ -265,7 +265,7 @@ export default function VibeCheckTab({ clusters, state, onStateChange, onSavePla
                       key={i}
                       x={p.x}
                       y={p.y}
-                      fontSize="4.5"
+                      fontSize="6.5"
                       fontFamily="monospace"
                       fontWeight="700"
                       fill="#bccbb9"
@@ -280,7 +280,7 @@ export default function VibeCheckTab({ clusters, state, onStateChange, onSavePla
               </svg>
             </div>
 
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
               {[
                 ['Energy', energy, '#53e076'],
                 ['Valence', valence, '#37d7ff'],
