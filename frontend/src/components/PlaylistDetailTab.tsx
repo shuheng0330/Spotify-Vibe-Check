@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Sparkles, Paintbrush, Activity, ArrowLeft } from 'lucide-react';
+import { Sparkles, Paintbrush, Activity, ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { Playlist } from '../types';
 
 interface PlaylistDetailTabProps {
@@ -109,6 +109,7 @@ export default function PlaylistDetailTab({ playlist, onBack }: PlaylistDetailTa
                     <th className="px-3 py-3.5 text-center font-bold text-[#53e076]">ENERGY</th>
                     <th className="px-3 py-3.5 text-center font-bold text-[#37d7ff]">VALENCE</th>
                     <th className="px-3 py-3.5 text-center font-bold text-white">DANCE</th>
+                    <th className="px-3 py-3.5 text-right">SPOTIFY</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 text-[#e5e2e1]">
@@ -138,6 +139,16 @@ export default function PlaylistDetailTab({ playlist, onBack }: PlaylistDetailTa
                       <td className="px-3 py-3 text-center font-mono font-semibold text-[#53e076]">{track.energy.toFixed(2)}</td>
                       <td className="px-3 py-3 text-center font-mono font-semibold text-[#37d7ff]">{track.valence.toFixed(2)}</td>
                       <td className="px-3 py-3 text-center font-mono font-semibold text-white">{track.danceability.toFixed(2)}</td>
+                      <td className="px-3 py-3 text-right">
+                        <a
+                          href={track.spotifyUrl || `https://open.spotify.com/search/${encodeURIComponent(`${track.title} ${track.artist}`)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1.5 inline-flex bg-white/5 group-hover:bg-[#53e076]/20 group-hover:text-[#53e076] rounded-full transition-all text-[#bccbb9]"
+                        >
+                          <ArrowUpRight size={14} />
+                        </a>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -19,7 +19,7 @@ The application is architected as a **decoupled full-stack system**: a Python **
 
 The project requirement specifies the Spotify Web API as the data source. In practice, **direct large-scale collection via the API is no longer feasible** for two compounding reasons:
 
-1. **Audio Features endpoint deprecated.** Spotify removed the `/audio-features` and `/audio-analysis` endpoints from the Web API in late 2024. These were the endpoints that returned the machine-learning-relevant fields (`energy`, `valence`, `danceability`, `acousticness`, `speechiness`, `instrumentalness`, `liveness`, `tempo`). Without them, the Spotify API only provides catalogue metadata (titles, artists, album art) — insufficient for any clustering task.
+1. **Audio Features endpoint restricted.** From November 27, 2024, Spotify restricted access to the `/audio-features` and `/audio-analysis` endpoints for new and development-tier Web API applications. Existing apps with approved extended access may be unaffected, but any new project or development-mode app is blocked from these endpoints ([Spotify developer blog, 2024-11-27](https://developer.spotify.com/blog/2024-11-27-changes-to-the-web-api)). These were the endpoints that returned the machine-learning-relevant fields (`energy`, `valence`, `danceability`, `acousticness`, `speechiness`, `instrumentalness`, `liveness`, `tempo`). Without them, the Spotify API only provides catalogue metadata (titles, artists, album art) — insufficient for any clustering task.
 
 2. **Rate limits make bulk collection impractical.** Even before deprecation, collecting 200K+ tracks required navigating strict rate caps, OAuth token refresh loops, and playlist-seeding strategies that add days of wall-clock time to an academic project timeline.
 
@@ -36,7 +36,7 @@ The project requirement specifies the Spotify Web API as the data source. In pra
 
 ### Feature Set
 
-Eight continuous audio features are used for all ML steps:
+Eight numeric audio features are used for all ML steps (`mode` is binary; the remaining seven are continuous):
 
 | Feature | Description | Range |
 |---------|-------------|-------|
@@ -66,7 +66,7 @@ Eight continuous audio features are used for all ML steps:
 
 - Components are selected automatically to explain **≥ 95% of total variance**.
 - Minimum of 2 components is enforced to guarantee a valid distance metric.
-- The resulting low-dimensional representation decorrelates features (e.g., `energy` and `loudness` are correlated) and reduces noise before clustering.
+- The resulting low-dimensional representation decorrelates features (e.g., `energy` and `danceability` share rhythmic variance; `acousticness` and `tempo` are inversely related) and reduces noise before clustering.
 - **t-SNE** (2D) is computed separately on the PCA output for interactive visualisation only — it is not used for clustering or inference. Because t-SNE is computationally expensive at scale, it is applied to a random **subsample of 5 000 tracks** (`TSNE_SAMPLE_SIZE = 5000`) rather than the full dataset.
 
 ### 3.3 Clustering (`src/ml/clustering.py`)
@@ -74,7 +74,7 @@ Eight continuous audio features are used for all ML steps:
 Three algorithms are trained and evaluated competitively:
 
 #### K-Means
-- Optimal k searched over `k ∈ [3, 15]` using the **Elbow Method** (inertia) and **Silhouette Score** in tandem.
+- Optimal k searched over `k ∈ [3, 14]` (Python `range(3, 15)`) using the **Elbow Method** (inertia) and **Silhouette Score** in tandem.
 - Because `silhouette_score` has **O(n²)** time complexity, the k-search is performed on a random **subsample of 50 000 tracks** (`KSEARCH_SAMPLE_SIZE = 50000`) rather than the full dataset — making the search tractable even on 300K-track corpora.
 - Final model uses `n_init=20` random restarts for stability.
 
@@ -155,7 +155,7 @@ CORS is configured to allow requests from any `localhost` or `127.0.0.1` origin,
 
 ### 5.2 Frontend — React + TypeScript (`frontend/`)
 
-The frontend is a **React 18** single-page application built with **Vite** and styled with **Tailwind CSS v4**. All components are written in TypeScript.
+The frontend is a **React 19** single-page application built with **Vite** and styled with **Tailwind CSS v4**. All components are written in TypeScript.
 
 | Page | Component | Content |
 |------|-----------|---------|
@@ -165,7 +165,7 @@ The frontend is a **React 18** single-page application built with **Vite** and s
 | **Academic Analysis** | `AcademicAnalysisTab` | Comparative performance matrix (KMeans / GMM / DBSCAN), PCA cumulative variance bar chart, K-search table, cohesion/separation table, diagnostic plot images, markdown analysis report |
 | **Saved Playlists** | `SavedPlaylistsTab` / `PlaylistDetailTab` | Persisted playlist cards with track lists, audio profile and cover art |
 
-The UI uses a dark glassmorphism design system: `#131313` background, `rgba(255,255,255,0.04)` glass panels, `#53E076` green accent, Inter / monospace fonts. Animations are handled by **Framer Motion**. Charts and the radar chart are rendered with custom SVG — no external charting library dependency for the core visualisations.
+The UI uses a dark glassmorphism design system: `#131313` background, `rgba(255,255,255,0.04)` glass panels, `#53E076` green accent, Inter / monospace fonts. Animations are handled by **Motion for React**. Charts and the radar chart are rendered with custom SVG — no external charting library dependency for the core visualisations.
 
 ---
 
