@@ -164,9 +164,9 @@ roughly spherical clusters in PCA space — a geometry that favours centroid-bas
     report = f"""## Cluster Analysis Report
 
 ### Dimensionality Reduction
-Principal Component Analysis (PCA) was applied to the 10-dimensional audio feature space.
+Principal Component Analysis (PCA) was applied to the 8-dimensional scaled audio feature space.
 Components were retained to explain at least 95% of the total variance, reducing noise and
-decorrelating correlated features such as energy and loudness.
+decorrelating related audio features such as energy, danceability, tempo, and acousticness.
 
 ### Clustering Algorithm Comparison
 Three unsupervised algorithms were evaluated: {algo_list}.

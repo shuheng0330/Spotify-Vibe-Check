@@ -253,31 +253,49 @@ export default function AcademicAnalysisTab({ analysis, health }: AcademicAnalys
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 select-none">
         <div className="glass-card p-6 rounded-xl flex flex-col h-[350px]">
           <h5 className="text-xs font-bold uppercase text-white font-mono tracking-wide mb-4">PCA Cumulative Explained Variance</h5>
-          <div className="relative h-56 rounded-xl border border-white/5 bg-black/20 px-4 pt-5 pb-8">
-            {[25, 50, 75, 95].map((tick) => (
-              <div
-                key={tick}
-                className="absolute left-4 right-4 border-t border-white/5"
-                style={{ bottom: `${8 + tick * 0.84}%` }}
-              >
-                <span className="absolute -top-2 right-0 text-[8px] text-[#bccbb9]/60 font-mono">{tick}%</span>
-              </div>
-            ))}
-            <div className="relative z-10 h-full flex items-end gap-3">
-            {(analysis?.pca_report.cumulative || []).map((value, index) => (
-              <div key={index} className="flex-1 h-full flex flex-col justify-end gap-2 min-w-0">
+          <div className="relative h-56 rounded-xl border border-white/5 bg-black/20 px-4 pt-7 pb-8">
+            <div className="absolute left-4 right-4 top-7 bottom-10">
+              {[25, 50, 75].map((tick) => (
                 <div
-                  className="relative rounded-t-lg bg-gradient-to-t from-[#53e076] to-[#37d7ff] shadow-[0_0_18px_rgba(83,224,118,0.22)] border border-white/10"
-                  style={{ height: `${Math.max(8, Math.round(value * 100))}%` }}
-                  title={`${(value * 100).toFixed(1)}% cumulative variance`}
+                  key={tick}
+                  className="absolute left-0 right-0 border-t border-white/5"
+                  style={{ bottom: `${tick}%` }}
                 >
-                  <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[8px] font-mono text-[#53e076]">
-                    {(value * 100).toFixed(0)}%
-                  </span>
+                  <span className="absolute -top-2 right-0 text-[8px] text-[#bccbb9]/60 font-mono">{tick}%</span>
                 </div>
-                <span className="text-[8px] text-[#bccbb9] font-mono text-center">PC{index + 1}</span>
+              ))}
+              <div
+                className="group absolute left-0 right-0 z-20 border-t border-dashed border-[#53e076]/80"
+                style={{ bottom: '95%' }}
+                title="95% target"
+              >
+                <span className="absolute -top-2 left-0 right-0 h-4 cursor-help" aria-label="95% target"></span>
+                <span className="pointer-events-none absolute -top-5 right-0 rounded bg-[#0f1511] px-1.5 py-0.5 text-[8px] font-mono font-bold text-[#53e076] border border-[#53e076]/30 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                  95% target
+                </span>
               </div>
-            ))}
+              <div className="relative z-10 h-full flex items-end gap-3">
+                {(analysis?.pca_report.cumulative || []).map((value, index) => (
+                  <div key={index} className="flex-1 h-full flex items-end min-w-0">
+                    <div
+                      className="relative w-full rounded-t-lg bg-gradient-to-t from-[#53e076] to-[#37d7ff] shadow-[0_0_18px_rgba(83,224,118,0.22)] border border-white/10"
+                      style={{ height: `${Math.max(8, value * 100)}%` }}
+                      title={`${(value * 100).toFixed(1)}% cumulative variance`}
+                    >
+                      <span className="absolute -top-5 left-1/2 -translate-x-1/2 text-[8px] font-mono text-[#53e076]">
+                        {(value * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="absolute left-4 right-4 bottom-4 flex gap-3">
+              {(analysis?.pca_report.cumulative || []).map((_, index) => (
+                <span key={index} className="flex-1 min-w-0 text-[8px] text-[#bccbb9] font-mono text-center">
+                  PC{index + 1}
+                </span>
+              ))}
             </div>
           </div>
           <p className="text-[10px] text-center text-[#bccbb9] mt-3 font-mono">
