@@ -1,9 +1,4 @@
-"""
-Singleton model loader.
-In a Streamlit app, call load_all() decorated with @st.cache_resource so
-models are loaded from disk only once per process.
-Outside Streamlit (e.g. tests, scripts), call load_all() directly.
-"""
+"""Model artifact loader shared by the FastAPI backend, tests, and scripts."""
 import json
 import os
 import numpy as np
@@ -45,10 +40,18 @@ def load_all() -> dict:
     tsne_indices = np.load(tsne_indices_path) if os.path.exists(tsne_indices_path) else None
 
     pca_report_path = f"{MODEL_DIR}/pca_report.json"
-    pca_report = json.load(open(pca_report_path)) if os.path.exists(pca_report_path) else {}
+    if os.path.exists(pca_report_path):
+        with open(pca_report_path) as f:
+            pca_report = json.load(f)
+    else:
+        pca_report = {}
 
     k_eval_path = f"{MODEL_DIR}/k_eval.json"
-    k_eval = json.load(open(k_eval_path)) if os.path.exists(k_eval_path) else {}
+    if os.path.exists(k_eval_path):
+        with open(k_eval_path) as f:
+            k_eval = json.load(f)
+    else:
+        k_eval = {}
 
     return {
         "scaler": scaler,

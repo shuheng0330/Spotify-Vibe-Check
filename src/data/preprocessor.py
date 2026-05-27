@@ -62,6 +62,7 @@ def preprocess(raw_csv: str, output_csv: str, scaler_path: str) -> tuple[pd.Data
 
     os.makedirs(os.path.dirname(output_csv), exist_ok=True)
     result.to_csv(output_csv, index=False)
+    os.makedirs(os.path.dirname(scaler_path), exist_ok=True)
     joblib.dump(scaler, scaler_path)
     print(f"Saved {len(result)} processed tracks to {output_csv}")
     print(f"Saved scaler to {scaler_path}")

@@ -1,0 +1,4 @@
+{
+  "name": "Spotify Vibe Check",
+  "description": "React frontend for the Spotify Vibe Check FastAPI music clustering app."
+}

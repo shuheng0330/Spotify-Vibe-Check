@@ -8,4 +8,8 @@ __pycache__/
 .streamlit/secrets.toml
 .venv/
 .cache
-models/
+models/ARCHITECTURE_AND_CODING_DESIGN.md
+PROJECT_REQUIREMENTS.md
+PROJECT_STATUS.md
+ARCHITECTURE_AND_CODING_DESIGN.md
+tests/

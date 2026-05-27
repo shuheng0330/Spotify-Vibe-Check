@@ -1,5 +1,5 @@
 """
-Tool handler implementations — called by dj_agent.py when Gemini emits a function_call.
+Tool handler implementations called by dj_agent.py when OpenRouter emits a function call.
 Each handler loads models via ModelLoader (singleton, loaded once at startup).
 """
 import os
