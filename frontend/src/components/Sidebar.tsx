@@ -1,4 +1,4 @@
-import { LineChart, Network, BookOpen, Music, Activity } from 'lucide-react';
+import { LineChart, Network, BookOpen, Music, Activity, Home } from 'lucide-react';
 import { HealthStatus } from '../types';
 
 interface SidebarProps {
@@ -10,6 +10,7 @@ interface SidebarProps {
 
 export default function Sidebar({ activeTab, setActiveTab, modelStatus, health }: SidebarProps) {
   const navItems = [
+    { id: 'main', label: 'Main', icon: Home },
     { id: 'vibe_check', label: 'Vibe Check', icon: LineChart },
     { id: 'explore', label: 'Explore Clusters', icon: Network },
     { id: 'academic', label: 'Academic Analysis', icon: BookOpen },

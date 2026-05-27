@@ -1,0 +1,144 @@
+{
+  "id": "20260527_155928_focus-flow",
+  "saved_at": "2026-05-27T15:59:28",
+  "cluster": {
+    "cluster_id": 2,
+    "cluster_name": "Focus Flow",
+    "track_count": 64214
+  },
+  "centroid": {
+    "energy": 0.6817,
+    "valence": 0.5084,
+    "danceability": 0.6097,
+    "acousticness": 0.2147,
+    "tempo": 123.2291,
+    "speechiness": 0.0588,
+    "instrumentalness": 0.2056,
+    "mode": 0
+  },
+  "tracks": [
+    {
+      "track_id": "2ik8P3FGPzYFKEpb9nv1CC",
+      "track_name": "Memory",
+      "artist_name": "['nan V']",
+      "album_name": null,
+      "popularity": 36,
+      "energy": 0.533,
+      "valence": 0.288,
+      "danceability": 0.812,
+      "acousticness": 0,
+      "tempo": 119.979
+    },
+    {
+      "track_id": "7tYzzxYwpPnDKq8uQFvYdS",
+      "track_name": "Never Let You Go",
+      "artist_name": "['Zaeden', 'Nina & Malika']",
+      "album_name": null,
+      "popularity": 0,
+      "energy": 0.842,
+      "valence": 0.399,
+      "danceability": 0.801,
+      "acousticness": 0.25,
+      "tempo": 120.998
+    },
+    {
+      "track_id": "3WIYFmIDmu9tcNSTNTBXvY",
+      "track_name": "Descanso Gardens",
+      "artist_name": "['Revelries']",
+      "album_name": null,
+      "popularity": 56,
+      "energy": 0.935,
+      "valence": 0.441,
+      "danceability": 0.647,
+      "acousticness": 0.133,
+      "tempo": 124.017
+    },
+    {
+      "track_id": "1jkAxE1qKoy9BsrOlTpIke",
+      "track_name": "Foolin' Around",
+      "artist_name": "['Changing Faces']",
+      "album_name": null,
+      "popularity": 38,
+      "energy": 0.574,
+      "valence": 0.229,
+      "danceability": 0.591,
+      "acousticness": 0.228,
+      "tempo": 131.495
+    },
+    {
+      "track_id": "5FgFKYlro5NtBzAAwVgGNb",
+      "track_name": "Más Hardcore Que Yo No Se Puede Ser - Remix",
+      "artist_name": "['Parkineos', 'UMMO']",
+      "album_name": null,
+      "popularity": 40,
+      "energy": 0.883,
+      "valence": 0.127,
+      "danceability": 0.604,
+      "acousticness": 0.003,
+      "tempo": 100.869
+    },
+    {
+      "track_id": "77VhEqNShdO3NrZHJDh60i",
+      "track_name": "Phog",
+      "artist_name": "['Liquid']",
+      "album_name": null,
+      "popularity": 31,
+      "energy": 0.939,
+      "valence": 0.516,
+      "danceability": 0.359,
+      "acousticness": 0.003,
+      "tempo": 167.623
+    },
+    {
+      "track_id": "3gFS9CKU70Wm7vAoA0O1uW",
+      "track_name": "Hard Time",
+      "artist_name": "['Seinabo Sey']",
+      "album_name": null,
+      "popularity": 49,
+      "energy": 0.643,
+      "valence": 0.313,
+      "danceability": 0.534,
+      "acousticness": 0.025,
+      "tempo": 192.003
+    },
+    {
+      "track_id": "5LK19eRCqoKuRSVuUEhEKh",
+      "track_name": "By Your Side",
+      "artist_name": "['Sebastian Bach']",
+      "album_name": null,
+      "popularity": 42,
+      "energy": 0.605,
+      "valence": 0.078,
+      "danceability": 0.477,
+      "acousticness": 0.051,
+      "tempo": 143.099
+    },
+    {
+      "track_id": "2xsXemHyKJw1Bvme3UO96B",
+      "track_name": "Angerita San",
+      "artist_name": "['MAX SURBAN']",
+      "album_name": null,
+      "popularity": 23,
+      "energy": 0.413,
+      "valence": 0.337,
+      "danceability": 0.554,
+      "acousticness": 0.678,
+      "tempo": 104.034
+    },
+    {
+      "track_id": "1tszACVAezDsw71KyLOCpR",
+      "track_name": "Jail House Dub",
+      "artist_name": "['Mad Professor']",
+      "album_name": null,
+      "popularity": 30,
+      "energy": 0.485,
+      "valence": 0.501,
+      "danceability": 0.857,
+      "acousticness": 0.026,
+      "tempo": 134.416
+    }
+  ],
+  "cover_url": "https://image.pollinations.ai/prompt/Album%20cover%20artwork%20for%20a%20playlist%20called%20%27Focus%20Flow%27.%20The%20visual%20mood%20should%20feel%20balanced%20and%20neutral%20in%20tone.%20The%20composition%20should%20be%20intense%20and%20high-energy%20and%20fast-paced.%20Use%20sleek%20electronic%20and%20digital%20aesthetic.%20Style%3A%20clean%20and%20minimal.%20Professional%20album%20art%2C%20square%20format%2C%20no%20text%2C%20no%20typography.?width=1024&height=1024&nologo=true&model=flux",
+  "cover_prompt": "Album cover artwork for a playlist called 'Focus Flow'. The visual mood should feel balanced and neutral in tone. The composition should be intense and high-energy and fast-paced. Use sleek electronic and digital aesthetic. Style: clean and minimal. Professional album art, square format, no text, no typography.",
+  "has_cover": true
+}

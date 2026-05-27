@@ -6,6 +6,7 @@ import ExploreClustersTab from './components/ExploreClustersTab';
 import AcademicAnalysisTab from './components/AcademicAnalysisTab';
 import SavedPlaylistsTab from './components/SavedPlaylistsTab';
 import PlaylistDetailTab from './components/PlaylistDetailTab';
+import MainTab from './components/MainTab';
 import { api } from './api';
 import {
   AnalysisPayload,
@@ -17,11 +18,11 @@ import {
   SavePlaylistPayload,
 } from './types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, LineChart, Network, BookOpen, Music } from 'lucide-react';
+import { Sparkles, LineChart, Network, BookOpen, Music, Home } from 'lucide-react';
 import { createInitialVibeCheckState, VibeCheckState } from './vibeCheckState';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('vibe_check');
+  const [activeTab, setActiveTab] = useState<string>('main');
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [clusterPoints, setClusterPoints] = useState<ClusterPoint[]>([]);
@@ -36,6 +37,7 @@ export default function App() {
   const modelStatus = health?.models_loaded ? 'Online' : 'Needs setup';
 
   const navbarTitles: Record<string, string> = {
+    main: 'Spotify Vibe Check | Home',
     vibe_check: 'Spotify Vibe Check | Dashboard',
     explore: 'Explore Clusters | latent audio space',
     academic: 'Academic Analysis | Comparative Matrix',
@@ -141,6 +143,8 @@ export default function App() {
               transition={{ duration: 0.25, ease: 'easeOut' }}
               className="w-full h-full"
             >
+              {activeTab === 'main' && <MainTab />}
+
               {activeTab === 'vibe_check' && (
                 <VibeCheckTab
                   clusters={clusters}
@@ -180,6 +184,7 @@ export default function App() {
 
       <nav className="fixed bottom-0 left-0 w-full z-50 md:hidden bg-[#131313]/90 backdrop-blur-xl border-t border-white/10 flex justify-around items-center h-16 pb-safe px-2 shadow-2xl">
         {[
+          { id: 'main', label: 'Home', icon: Home },
           { id: 'vibe_check', label: 'Vibe', icon: LineChart },
           { id: 'explore', label: 'Clusters', icon: Network },
           { id: 'academic', label: 'Academic', icon: BookOpen },

@@ -39,6 +39,8 @@ export default function VibeCheckTab({ clusters, state, onStateChange, onSavePla
   const valence = percent(activeCluster?.centroid.valence);
   const danceability = percent(activeCluster?.centroid.danceability);
   const acousticness = percent(activeCluster?.centroid.acousticness);
+  const instrumentalness = percent(activeCluster?.centroid.instrumentalness);
+  const speechiness = percent(activeCluster?.centroid.speechiness);
   const bpm = Math.round(activeCluster?.centroid.tempo || 0);
   const imageUrl = coverUrl || activeTracks[0]?.albumArt || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&q=80&w=400&h=400';
 
@@ -155,11 +157,28 @@ export default function VibeCheckTab({ clusters, state, onStateChange, onSavePla
     }
   };
 
-  const eVal = energy / 100;
-  const vVal = valence / 100;
-  const dVal = danceability / 100;
-  const aVal = acousticness / 100;
-  const radarPoints = `${50}, ${50 - 42 * eVal} ${50 + 42 * vVal}, ${50} ${50}, ${50 + 42 * dVal} ${50 - 42 * aVal}, ${50}`;
+  // Radar geometry — 6-axis hexagon, 0° = right, counter-clockwise
+  const CX = 70, CY = 70, R = 45;
+  const radarAxes = [
+    { label: 'ENERGY',           v: energy / 100,          color: '#53e076' },
+    { label: 'VALENCE',          v: valence / 100,         color: '#37d7ff' },
+    { label: 'DANCEABILITY',     v: danceability / 100,    color: '#53e076' },
+    { label: 'ACOUSTIC',         v: acousticness / 100,    color: '#bccbb9' },
+    { label: 'INSTRUMENTAL',     v: instrumentalness / 100, color: '#bccbb9' },
+    { label: 'SPEECH',           v: speechiness / 100,     color: '#bccbb9' },
+  ];
+  const axisPt = (i: number, r: number) => {
+    const a = (i * Math.PI * 2) / 6;
+    return { x: CX + r * Math.cos(a), y: CY - r * Math.sin(a) };
+  };
+  const hexRing = (r: number) =>
+    [0, 1, 2, 3, 4, 5].map((i) => { const p = axisPt(i, r); return `${p.x},${p.y}`; }).join(' ');
+  const radarPolygon = radarAxes.map((ax, i) => {
+    const p = axisPt(i, R * ax.v);
+    return `${p.x},${p.y}`;
+  }).join(' ');
+  const labelAnchors = ['start', 'start', 'end', 'end', 'end', 'start'] as const;
+  const labelBaselines = ['middle', 'auto', 'auto', 'middle', 'hanging', 'hanging'] as const;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="vibe-check-tab">
@@ -217,33 +236,60 @@ export default function VibeCheckTab({ clusters, state, onStateChange, onSavePla
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
             <div className="flex justify-center select-none">
-              <div className="relative w-[180px] h-[180px]">
-                <svg viewBox="0 0 100 100" className="w-[180px] h-[180px] text-[#53e076]">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1" />
-                  <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1" />
-                  <circle cx="50" cy="50" r="15" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1" />
-                  <line x1="50" y1="5" x2="50" y2="95" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1" />
-                  <line x1="5" y1="50" x2="95" y2="50" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1" strokeDasharray="1 3" />
-                  <polygon points={radarPoints} fill="rgba(83, 224, 118, 0.25)" stroke="#53e076" strokeWidth="1.5" />
-                  <circle cx="50" cy="50" r="2" fill="white" />
-                </svg>
-                <div className="absolute top-1 left-1/2 -translate-x-1/2 text-[8px] font-bold text-[#bccbb9] uppercase font-mono tracking-widest">Energy</div>
-                <div className="absolute right-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-[#bccbb9] uppercase font-mono tracking-widest">Valence</div>
-                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold text-[#bccbb9] uppercase font-mono tracking-widest">Dance</div>
-                <div className="absolute left-1 top-1/2 -translate-y-1/2 text-[8px] font-bold text-[#bccbb9] uppercase font-mono tracking-widest">Acoustic</div>
-              </div>
+              <svg viewBox="-20 -8 180 158" className="w-[210px] h-[210px]">
+                {/* Grid rings */}
+                {[R * 0.33, R * 0.66, R].map((r, ri) => (
+                  <polygon key={ri} points={hexRing(r)} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+                ))}
+                {/* Axis lines */}
+                {radarAxes.map((_, i) => {
+                  const p = axisPt(i, R);
+                  return <line key={i} x1={CX} y1={CY} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />;
+                })}
+                {/* Data polygon */}
+                <polygon points={radarPolygon} fill="rgba(83,224,118,0.18)" stroke="#53e076" strokeWidth="1.5" strokeLinejoin="round" />
+                {/* Data dots */}
+                {radarAxes.map((ax, i) => {
+                  const p = axisPt(i, R * ax.v);
+                  return ax.v > 0 ? <circle key={i} cx={p.x} cy={p.y} r="2" fill="#53e076" /> : null;
+                })}
+                {/* Center dot */}
+                <circle cx={CX} cy={CY} r="1.5" fill="rgba(255,255,255,0.4)" />
+                {/* Labels */}
+                {radarAxes.map((ax, i) => {
+                  const p = axisPt(i, R + 13);
+                  return (
+                    <text
+                      key={i}
+                      x={p.x}
+                      y={p.y}
+                      fontSize="4.5"
+                      fontFamily="monospace"
+                      fontWeight="700"
+                      fill="#bccbb9"
+                      textAnchor={labelAnchors[i]}
+                      dominantBaseline={labelBaselines[i]}
+                      letterSpacing="0.5"
+                    >
+                      {ax.label}
+                    </text>
+                  );
+                })}
+              </svg>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[
                 ['Energy', energy, '#53e076'],
                 ['Valence', valence, '#37d7ff'],
                 ['Danceability', danceability, '#53e076'],
                 ['Acousticness', acousticness, '#ffffff'],
+                ['Instrumentalness', instrumentalness, '#bccbb9'],
+                ['Speechiness', speechiness, '#bccbb9'],
               ].map(([label, value, color]) => (
-                <div className="space-y-1" key={label}>
+                <div className="space-y-1" key={label as string}>
                   <div className="flex justify-between text-xs font-mono">
                     <span className="text-[#bccbb9]">{label}</span>
                     <span className="font-bold" style={{ color: color as string }}>{value}%</span>
@@ -404,13 +450,14 @@ export default function VibeCheckTab({ clusters, state, onStateChange, onSavePla
                       </div>
                     </td>
                     <td className="py-3 text-right">
-                      {track.spotifyUrl ? (
-                        <a href={track.spotifyUrl} target="_blank" rel="noreferrer" className="p-1.5 inline-flex bg-white/5 group-hover:bg-[#53e076]/20 group-hover:text-[#53e076] rounded-full transition-all text-[#bccbb9]">
-                          <ArrowUpRight size={14} />
-                        </a>
-                      ) : (
-                        <span className="text-[10px] text-[#bccbb9]">N/A</span>
-                      )}
+                      <a
+                        href={track.spotifyUrl || `https://open.spotify.com/search/${encodeURIComponent(`${track.title} ${track.artist}`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1.5 inline-flex bg-white/5 group-hover:bg-[#53e076]/20 group-hover:text-[#53e076] rounded-full transition-all text-[#bccbb9]"
+                      >
+                        <ArrowUpRight size={14} />
+                      </a>
                     </td>
                   </tr>
                 ))}

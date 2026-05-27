@@ -1,4 +1,4 @@
-import { Download, FileDown, FileText, Image as ImageIcon, Table2 } from 'lucide-react';
+import { Download, FileText, Image as ImageIcon, Table2 } from 'lucide-react';
 import { apiUrl } from '../api';
 import { AnalysisPayload, HealthStatus } from '../types';
 
@@ -163,13 +163,6 @@ export default function AcademicAnalysisTab({ analysis, health }: AcademicAnalys
           >
             <Download size={14} />
             Download Summary
-          </button>
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#53e076] text-black font-bold text-xs hover:brightness-110 active:scale-95 transition-all"
-          >
-            <FileDown size={14} />
-            Export Report
           </button>
         </div>
       </div>
